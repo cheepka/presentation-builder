@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
 /**
@@ -23,6 +23,17 @@ function ImageUpload({
   const [previewUrl, setPreviewUrl] = useState(initialImage || `https://via.placeholder.com/${placeholderSize}`);
   const [isPlaceholder, setIsPlaceholder] = useState(!initialImage);
   const fileInputRef = useRef(null);
+
+  // Reset state if initialImage changes
+  useEffect(() => {
+    if (initialImage) {
+      setPreviewUrl(initialImage);
+      setIsPlaceholder(false);
+    } else {
+      setPreviewUrl(`https://via.placeholder.com/${placeholderSize}`);
+      setIsPlaceholder(true);
+    }
+  }, [initialImage, placeholderSize]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -68,8 +79,14 @@ function ImageUpload({
   };
 
   const triggerFileInput = () => {
+    // Extra console log to debug
+    console.log("File input trigger clicked");
+    
     if (fileInputRef.current) {
+      console.log("File input ref exists, clicking it");
       fileInputRef.current.click();
+    } else {
+      console.log("File input ref is null");
     }
   };
 
@@ -109,7 +126,10 @@ function ImageUpload({
         
         {/* Placeholder overlay when no image */}
         {isPlaceholder && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+          <div 
+            className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 cursor-pointer"
+            onClick={triggerFileInput}
+          >
             <ImageIcon size={36} />
             <span className="mt-2 text-sm">{label}</span>
           </div>
