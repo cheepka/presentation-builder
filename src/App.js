@@ -50,7 +50,7 @@ function PresentationBuilderApp() {
   const renderSlide = (slide) => {
     switch (slide.type) {
       case 'fullImage':
-        return <FullImageSlide />;
+        return <FullImageSlide slide={slide} />;
       default:
         return <div className="text-white p-4">Slide type not implemented yet</div>;
     }
