@@ -124,6 +124,18 @@ function PresentationBuilder() {
     }
   };
 
+  // Get a gray shade for placeholders to ensure a consistent look
+  const getPlaceholderColor = (position) => {
+    // Using a simple algorithm to generate different shades of gray based on position
+    const positionIndex = typeof position === 'string' ? 
+      position.replace(/[^\d]/g, '') : // Extract digits from positions like 'grid1'
+      0;
+    
+    // Calculate a shade of gray, alternating between lighter and darker
+    const baseValue = 50 + (positionIndex * 5) % 20;
+    return `rgb(${baseValue}, ${baseValue}, ${baseValue})`;
+  };
+
   // Remove a slide
   const removeSlide = (index) => {
     const newSlides = [...slides];
@@ -181,56 +193,6 @@ function PresentationBuilder() {
         [position]: imageData
       }
     });
-  };
-
-  // Get image URL based on slide type and position
-  const getImageUrl = (slide, position, defaultSize = '600x400') => {
-    // If there's a custom image for this position, use it
-    if (slide.images && slide.images[position] && slide.images[position].url) {
-      return slide.images[position].url;
-    }
-    
-    // Otherwise use good quality placeholder based on position and slide type
-    // This gives more professional placeholders that fit the context
-    const category = getPlaceholderCategory(slide.type, position);
-    return `https://source.unsplash.com/featured/?${category}&${defaultSize}`;
-  };
-
-  // Get appropriate placeholder category based on slide type and position
-  const getPlaceholderCategory = (slideType, position) => {
-    switch(slideType) {
-      case 'fullImage':
-        return 'business,modern';
-      case 'rightImage':
-      case 'leftImage':
-        return 'office,professional';
-      case 'rightGrid':
-        if (position === 'grid1') return 'teamwork';
-        if (position === 'grid2') return 'meeting';
-        if (position === 'grid3') return 'technology';
-        return 'business';
-      case 'splitVertical':
-        if (position === 'top') return 'architecture';
-        if (position === 'bottom') return 'design';
-        return 'business';
-      case 'imageGrid':
-        // Generate varied categories for the grid
-        const gridCategories = [
-          'workspace', 'creative', 'design',
-          'technology', 'modern', 'office',
-          'architecture', 'business', 'teamwork'
-        ];
-        const gridPosition = parseInt(position.replace('grid', '')) - 1;
-        return gridCategories[gridPosition] || 'business';
-      case 'fourGrid':
-        if (position === 'grid1') return 'design';
-        if (position === 'grid2') return 'workspace';
-        if (position === 'grid3') return 'architecture';
-        if (position === 'grid4') return 'technology';
-        return 'business';
-      default:
-        return 'business';
-    }
   };
 
   // Check if image is a placeholder (not custom uploaded)
@@ -338,13 +300,17 @@ function PresentationBuilder() {
                       {/* Full Image Template */}
                       {slide.type === 'fullImage' && (
                         <div className="w-full h-full relative overflow-hidden">
-                          {/* Image with optional user uploaded image */}
+                          {/* Display uploaded image OR solid color for placeholder */}
                           <div className="absolute inset-0">
-                            <img 
-                              src={getImageUrl(slide, 'main', '1200x675')} 
-                              alt="Background image"
-                              className="w-full h-full object-cover opacity-60"
-                            />
+                            {slide.images?.main?.url ? (
+                              <img 
+                                src={slide.images.main.url} 
+                                alt="Background image"
+                                className="w-full h-full object-cover opacity-60"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-800"></div>
+                            )}
                           </div>
                           
                           {/* Content overlay */}
@@ -380,13 +346,17 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Right image section - with optional uploaded image */}
+                          {/* Right image section - with uploaded image or placeholder */}
                           <div className="w-1/2 bg-gray-800 relative">
-                            <img 
-                              src={getImageUrl(slide, 'main', '600x675')}
-                              alt="Right side image"
-                              className="w-full h-full object-cover opacity-70"
-                            />
+                            {slide.images?.main?.url ? (
+                              <img 
+                                src={slide.images.main.url}
+                                alt="Right side image"
+                                className="w-full h-full object-cover opacity-70"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-700"></div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -394,13 +364,17 @@ function PresentationBuilder() {
                       {/* Left Image Template */}
                       {slide.type === 'leftImage' && (
                         <div className="w-full h-full flex">
-                          {/* Left image section - with optional uploaded image */}
+                          {/* Left image section - with uploaded image or placeholder */}
                           <div className="w-1/2 bg-gray-800 relative">
-                            <img 
-                              src={getImageUrl(slide, 'main', '600x675')}
-                              alt="Left side image"
-                              className="w-full h-full object-cover opacity-70"
-                            />
+                            {slide.images?.main?.url ? (
+                              <img 
+                                src={slide.images.main.url}
+                                alt="Left side image"
+                                className="w-full h-full object-cover opacity-70"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-700"></div>
+                            )}
                           </div>
                           
                           {/* Right content section */}
@@ -446,28 +420,49 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Right image grid section - with optional uploaded images */}
+                          {/* Right image grid section - with uploaded images or placeholders */}
                           <div className="w-1/2 grid grid-cols-1 grid-rows-3 gap-1">
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid1', '600x225')}
-                                alt="Top grid image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid1?.url ? (
+                                <img 
+                                  src={slide.images.grid1.url}
+                                  alt="Top grid image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid1')}}
+                                ></div>
+                              )}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid2', '600x225')}
-                                alt="Middle grid image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid2?.url ? (
+                                <img 
+                                  src={slide.images.grid2.url}
+                                  alt="Middle grid image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid2')}}
+                                ></div>
+                              )}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid3', '600x225')}
-                                alt="Bottom grid image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid3?.url ? (
+                                <img 
+                                  src={slide.images.grid3.url}
+                                  alt="Bottom grid image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid3')}}
+                                ></div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -488,21 +483,35 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Right split image section - with optional uploaded images */}
+                          {/* Right split image section - with uploaded images or placeholders */}
                           <div className="w-1/2 grid grid-rows-2 gap-1">
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'top', '600x337')}
-                                alt="Top image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.top?.url ? (
+                                <img 
+                                  src={slide.images.top.url}
+                                  alt="Top image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('top')}}
+                                ></div>
+                              )}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'bottom', '600x337')}
-                                alt="Bottom image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.bottom?.url ? (
+                                <img 
+                                  src={slide.images.bottom.url}
+                                  alt="Bottom image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('bottom')}}
+                                ></div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -514,11 +523,18 @@ function PresentationBuilder() {
                           <div className="grid grid-cols-3 grid-rows-3 gap-1 h-full">
                             {Array(9).fill(0).map((_, i) => (
                               <div key={i} className="relative">
-                                <img 
-                                  src={getImageUrl(slide, `grid${i+1}`, '400x225')}
-                                  alt={`Grid image ${i+1}`}
-                                  className="w-full h-full object-cover"
-                                />
+                                {slide.images?.[`grid${i+1}`]?.url ? (
+                                  <img 
+                                    src={slide.images[`grid${i+1}`].url}
+                                    alt={`Grid image ${i+1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div 
+                                    className="w-full h-full" 
+                                    style={{backgroundColor: getPlaceholderColor(`grid${i+1}`)}}
+                                  ></div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -535,32 +551,60 @@ function PresentationBuilder() {
                         <div className="w-full h-full">
                           <div className="grid grid-cols-2 grid-rows-2 gap-1 h-full">
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid1', '600x337')}
-                                alt="Top left image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid1?.url ? (
+                                <img 
+                                  src={slide.images.grid1.url}
+                                  alt="Top left image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid1')}}
+                                ></div>
+                              )}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid2', '600x337')}
-                                alt="Top right image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid2?.url ? (
+                                <img 
+                                  src={slide.images.grid2.url}
+                                  alt="Top right image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid2')}}
+                                ></div>
+                              )}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid3', '600x337')}
-                                alt="Bottom left image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid3?.url ? (
+                                <img 
+                                  src={slide.images.grid3.url}
+                                  alt="Bottom left image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid3')}}
+                                ></div>
+                              )}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={getImageUrl(slide, 'grid4', '600x337')}
-                                alt="Bottom right image"
-                                className="w-full h-full object-cover"
-                              />
+                              {slide.images?.grid4?.url ? (
+                                <img 
+                                  src={slide.images.grid4.url}
+                                  alt="Bottom right image"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-full h-full" 
+                                  style={{backgroundColor: getPlaceholderColor('grid4')}}
+                                ></div>
+                              )}
                             </div>
                           </div>
                           
@@ -704,7 +748,6 @@ function PresentationBuilder() {
                       <div className="aspect-video max-h-80">
                         <ImageUpload
                           initialImage={editForm.images?.main?.url}
-                          placeholderSize="1200x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
                           className="h-full rounded overflow-hidden"
                         />
@@ -719,7 +762,6 @@ function PresentationBuilder() {
                       <div className="aspect-video max-h-80">
                         <ImageUpload
                           initialImage={editForm.images?.main?.url}
-                          placeholderSize="600x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
                           className="h-full rounded overflow-hidden"
                         />
@@ -734,7 +776,6 @@ function PresentationBuilder() {
                       <div className="aspect-video max-h-80">
                         <ImageUpload
                           initialImage={editForm.images?.main?.url}
-                          placeholderSize="600x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
                           className="h-full rounded overflow-hidden"
                         />
@@ -751,7 +792,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Top Image</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid1?.url}
-                            placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid1', imageData)}
                             className="h-32 rounded overflow-hidden"
                           />
@@ -760,7 +800,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Middle Image</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid2?.url}
-                            placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid2', imageData)}
                             className="h-32 rounded overflow-hidden"
                           />
@@ -769,7 +808,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Bottom Image</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid3?.url}
-                            placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid3', imageData)}
                             className="h-32 rounded overflow-hidden"
                           />
@@ -787,7 +825,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Top Image</div>
                           <ImageUpload
                             initialImage={editForm.images?.top?.url}
-                            placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('top', imageData)}
                             className="h-40 rounded overflow-hidden"
                           />
@@ -796,7 +833,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Bottom Image</div>
                           <ImageUpload
                             initialImage={editForm.images?.bottom?.url}
-                            placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('bottom', imageData)}
                             className="h-40 rounded overflow-hidden"
                           />
@@ -815,7 +851,6 @@ function PresentationBuilder() {
                             <div className="text-xs text-gray-500 mb-1">Image {i+1}</div>
                             <ImageUpload
                               initialImage={editForm.images?.[`grid${i+1}`]?.url}
-                              placeholderSize="400x225"
                               onImageChange={(imageData) => handleImageChange(`grid${i+1}`, imageData)}
                               className="h-24 rounded overflow-hidden"
                             />
@@ -834,7 +869,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Top Left</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid1?.url}
-                            placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid1', imageData)}
                             className="h-40 rounded overflow-hidden"
                           />
@@ -843,7 +877,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Top Right</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid2?.url}
-                            placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid2', imageData)}
                             className="h-40 rounded overflow-hidden"
                           />
@@ -852,7 +885,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Bottom Left</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid3?.url}
-                            placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid3', imageData)}
                             className="h-40 rounded overflow-hidden"
                           />
@@ -861,7 +893,6 @@ function PresentationBuilder() {
                           <div className="text-xs text-gray-500 mb-1">Bottom Right</div>
                           <ImageUpload
                             initialImage={editForm.images?.grid4?.url}
-                            placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid4', imageData)}
                             className="h-40 rounded overflow-hidden"
                           />
