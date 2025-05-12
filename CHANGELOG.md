@@ -6,16 +6,20 @@ All notable changes to the Presentation Builder project will be documented in th
 
 ### Added
 - Image upload functionality:
-  - Custom `ImageUpload` component for file selection and preview
+  - Clean, minimalist image upload component
   - Support for uploading different images based on template type
   - Image preview in editing modal
   - Remove/replace options for uploaded images
-  - Automatic placeholder fallback
+  - Simple gray placeholders for empty image slots
+- Toggle option to hide title overlays in image grid templates
+  - Image-only grid templates (9-grid and 4-grid) now default to no title overlay
+  - Option to toggle title display in slide editor
 
 ### Changed
 - Enhanced slide data structure to store image information
 - Improved edit modal with dedicated image upload section
 - Updated slide templates to use uploaded images when available
+- Simplified UI with cleaner placeholders and more intuitive controls
 
 ## [0.1.0] - 2025-05-12
 
@@ -41,7 +45,7 @@ All notable changes to the Presentation Builder project will be documented in th
 - Responsive layout with three-panel design
 
 ### Technical Notes
-- Using placeholder.com for image placeholders
+- Using placeholder colors for image placeholders
 - Single-component architecture with state management
 - Tailwind CSS for styling
 
