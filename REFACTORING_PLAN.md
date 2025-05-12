@@ -45,8 +45,7 @@ src/
 │   │   └── TemplateItem.js          # Individual template option
 │   ├── slideEditor/
 │   │   ├── EditableSlide.js         # Slide with direct editing capabilities
-│   │   ├── EditableText.js          # Text with inline editing functionality
-│   │   ├── EditableBulletList.js    # Bullet list with inline editing functionality
+│   │   ├── EditableText.js          # Text with inline editing functionality (including all text elements)
 │   │   ├── UploadableImage.js       # Image area with direct upload capabilities
 │   │   └── SlideControls.js         # Controls for slide management (move, delete)
 │   └── slideTypes/                  # Components for each slide type
@@ -60,7 +59,6 @@ src/
 ├── hooks/                           # Custom hooks 
 │   ├── useSlideManagement.js        # Hooks for slide CRUD operations
 │   ├── useEditableText.js           # Hook for handling inline text editing
-│   ├── useBulletListEditing.js      # Hook for managing inline bullet point editing
 │   ├── useImageUpload.js            # Hook for handling direct image uploads
 │   └── useLocalStorage.js           # Hook for saving/loading from localStorage
 ├── context/                         # Context providers
@@ -85,7 +83,7 @@ export function PresentationProvider({ children }) {
   const [currentPresentation, setCurrentPresentation] = useState({ name: 'Untitled', id: Date.now() });
   const [editingState, setEditingState] = useState({
     activeElement: null,  // id of the currently edited element
-    activeType: null,     // type of editing (text, bullet, image, etc.)
+    activeType: null,     // type of editing (text, image, etc.)
     activeSlideIndex: null, // index of slide being edited
   });
   
@@ -100,11 +98,6 @@ export function PresentationProvider({ children }) {
   const finishEditing = (newValue) => {/* implementation */};
   const cancelEditing = () => {/* implementation */};
   
-  // Bullet list specific functions
-  const addBulletPoint = (slideIndex, afterIndex) => {/* implementation */};
-  const removeBulletPoint = (slideIndex, bulletIndex) => {/* implementation */};
-  const moveBulletPoint = (slideIndex, bulletIndex, direction) => {/* implementation */};
-  
   return (
     <PresentationContext.Provider value={{
       slides,
@@ -117,9 +110,6 @@ export function PresentationProvider({ children }) {
       startEditing,
       finishEditing,
       cancelEditing,
-      addBulletPoint,
-      removeBulletPoint,
-      moveBulletPoint,
       setCurrentPresentation
     }}>
       {children}
@@ -138,11 +128,10 @@ export function usePresentation() {
 1. **App.js**: Overall application structure
 2. **SlideLibrary.js**: Display template options for adding to the presentation
 3. **EditableSlide.js**: Container for slide content with direct editing capabilities
-4. **EditableText.js**: Text component that can be edited inline (for all text elements)
-5. **EditableBulletList.js**: Component for inline bullet point editing with add/remove controls
-6. **UploadableImage.js**: Image component with direct upload functionality
-7. **SlideControls.js**: Controls for slide management (up, down, delete)
-8. **Slide Type Components**: Render specific slide layouts using editable components
+4. **EditableText.js**: Universal text component that can be edited inline (for all text elements including titles, paragraphs, bullet points)
+5. **UploadableImage.js**: Image component with direct upload functionality
+6. **SlideControls.js**: Controls for slide management (up, down, delete)
+7. **Slide Type Components**: Render specific slide layouts using editable components
 
 ## Revised Implementation Strategy
 
@@ -156,8 +145,7 @@ export function usePresentation() {
 2. Create TwoPanelLayout component (replacing ThreeColumnLayout)
 3. Create the new SlideLibrary component (simplified from TemplateLibrary)
 4. Implement the base editable components:
-   - EditableText (for all text including titles, paragraphs)
-   - EditableBulletList (for bullet point lists with inline editing)
+   - EditableText (for all text including titles, paragraphs, bullet points)
    - UploadableImage (for direct image uploads)
    - SlideControls (for slide management)
 
@@ -175,9 +163,8 @@ export function usePresentation() {
 ### Phase 4: Integration
 1. Update App.js to use the new component structure
 2. Implement direct editing interactions for all element types
-3. Ensure bullet point editing works seamlessly inline
-4. Connect slide controls to slide management functions
-5. Ensure all features work with the new architecture
+3. Connect slide controls to slide management functions
+4. Ensure all features work with the new architecture
 
 ### Phase 5: Save/Load Implementation
 1. Create useLocalStorage hook for persistence
@@ -189,7 +176,7 @@ export function usePresentation() {
 1. **Improved User Experience**: Fully direct interaction with all slide content
 2. **Streamlined Workflow**: Complete elimination of modal dialogs for editing
 3. **Simplified Interface**: Two-panel design instead of three panels
-4. **Consistent Editing Model**: All elements (text, bullets, images) follow the same direct-editing pattern
+4. **Consistent Editing Model**: All text elements (titles, paragraphs, bullet points) use the same EditableText component
 5. **All Previous Benefits**: Maintainability, testability, reusability, etc.
 
 ## Implementation Timeline
@@ -197,7 +184,7 @@ export function usePresentation() {
 | Phase | Estimated Effort | Key Deliverables |
 |-------|-----------------|------------------|
 | 1     | 2-3 hours       | Context and utilities |
-| 2     | 5-6 hours       | Core editable components |
+| 2     | 4-5 hours       | Core editable components |
 | 3     | 4-5 hours       | Slide type implementations |
 | 4     | 3-4 hours       | Integration and testing |
 | 5     | 4-5 hours       | Save/load functionality |
@@ -206,10 +193,9 @@ export function usePresentation() {
 
 1. Create unit tests for individual components
 2. Test inline editing interactions for all element types
-3. Test bullet point addition, removal, and editing
-4. Test image upload functionality
-5. Test slide management with the new controls
-6. Ensure keyboard accessibility
+3. Test image upload functionality
+4. Test slide management with the new controls
+5. Ensure keyboard accessibility
 
 ## Pull Request Plan
 
