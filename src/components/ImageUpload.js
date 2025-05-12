@@ -8,13 +8,11 @@ import { Upload, X } from 'lucide-react';
  * 
  * @param {Object} props
  * @param {string} [props.initialImage] - URL of initial image to display
- * @param {string} [props.placeholderSize='600x400'] - Size of placeholder image if no image is uploaded
  * @param {Function} props.onImageChange - Callback when image is selected/changed
  * @param {string} [props.className] - Additional CSS classes
  */
 function ImageUpload({ 
   initialImage, 
-  placeholderSize = '600x400',
   onImageChange, 
   className = ''
 }) {
@@ -85,7 +83,7 @@ function ImageUpload({
   return (
     <div className={`relative group ${className}`}>
       <div 
-        className="relative w-full h-full overflow-hidden bg-gray-100 rounded border border-gray-300 cursor-pointer transition-all duration-200 hover:bg-gray-200"
+        className="relative w-full h-full overflow-hidden bg-gray-100 rounded border border-gray-300 cursor-pointer transition-all duration-200 hover:bg-gray-200 flex items-center justify-center"
         onClick={triggerFileInput}
       >
         {/* If we have a preview URL, show the image */}
@@ -96,20 +94,9 @@ function ImageUpload({
             className="w-full h-full object-cover"
           />
         ) : (
-          // Otherwise show a nice gradient placeholder
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center">
-            <Upload size={24} className="text-gray-500" />
-          </div>
+          // Empty placeholder with just an upload icon
+          <Upload size={24} className="text-gray-400" />
         )}
-        
-        {/* Hover effect */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-black bg-opacity-40 w-full h-full flex items-center justify-center">
-            <div className="p-2 bg-white bg-opacity-90 rounded-full shadow">
-              <Upload size={20} className="text-gray-800" />
-            </div>
-          </div>
-        </div>
         
         {/* Remove button - only show if we have an image */}
         {!isPlaceholder && (
