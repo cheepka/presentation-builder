@@ -2,6 +2,21 @@
 
 All notable changes to the Presentation Builder project will be documented in this file.
 
+## [0.2.0] - 2025-05-12
+
+### Added
+- Image upload functionality:
+  - Custom `ImageUpload` component for file selection and preview
+  - Support for uploading different images based on template type
+  - Image preview in editing modal
+  - Remove/replace options for uploaded images
+  - Automatic placeholder fallback
+
+### Changed
+- Enhanced slide data structure to store image information
+- Improved edit modal with dedicated image upload section
+- Updated slide templates to use uploaded images when available
+
 ## [0.1.0] - 2025-05-12
 
 ### Added
@@ -31,7 +46,6 @@ All notable changes to the Presentation Builder project will be documented in th
 - Tailwind CSS for styling
 
 ## Future Planned Enhancements
-- Image upload functionality
 - Save/load presentations
 - Export to PDF/PowerPoint
 - User authentication
