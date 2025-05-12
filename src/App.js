@@ -90,6 +90,11 @@ function PresentationBuilder() {
         ];
       }
       
+      // For image grid templates, set showTitle to false
+      if (template.type === 'imageGrid' || template.type === 'fourGrid') {
+        newSlide.showTitle = false;
+      }
+      
       setSlides([...slides, newSlide]);
     }
   };
@@ -152,6 +157,7 @@ function PresentationBuilder() {
       content: slide.content || '',
       attribution: slide.attribution || '',
       bulletPoints: slide.bulletPoints || [],
+      showTitle: slide.showTitle !== undefined ? slide.showTitle : true,
       images: slide.images || {} // Include images in edit form
     });
   };
@@ -539,10 +545,12 @@ function PresentationBuilder() {
                             ))}
                           </div>
                           
-                          {/* Overlay title */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <h3 className="text-4xl font-bold text-white bg-gray-900 bg-opacity-70 px-6 py-3">{slide.title}</h3>
-                          </div>
+                          {/* Only show title overlay if showTitle is true */}
+                          {slide.showTitle !== false && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <h3 className="text-4xl font-bold text-white bg-gray-900 bg-opacity-70 px-6 py-3">{slide.title}</h3>
+                            </div>
+                          )}
                         </div>
                       )}
                       
@@ -608,10 +616,12 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Overlay title */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <h3 className="text-4xl font-bold text-white bg-gray-900 bg-opacity-70 px-6 py-3">{slide.title}</h3>
-                          </div>
+                          {/* Only show title overlay if showTitle is true */}
+                          {slide.showTitle !== false && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <h3 className="text-4xl font-bold text-white bg-gray-900 bg-opacity-70 px-6 py-3">{slide.title}</h3>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -734,6 +744,22 @@ function PresentationBuilder() {
                       onChange={(e) => setEditForm({...editForm, attribution: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded"
                     />
+                  </div>
+                )}
+                
+                {/* Title Display Option for Image Grid Templates */}
+                {(editingSlide.type === 'imageGrid' || editingSlide.type === 'fourGrid') && (
+                  <div className="flex items-center mt-2">
+                    <input
+                      type="checkbox"
+                      id="showTitle"
+                      checked={editForm.showTitle !== false}
+                      onChange={(e) => setEditForm({...editForm, showTitle: e.target.checked})}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
+                    />
+                    <label htmlFor="showTitle" className="text-sm text-gray-700">
+                      Show title overlay
+                    </label>
                   </div>
                 )}
 
