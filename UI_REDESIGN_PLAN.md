@@ -24,11 +24,15 @@ This document outlines the plans for redesigning the Presentation Builder UI to 
   - 4-Image Grid
 
 ### 2. Direct Slide Editing
-- Enable direct inline editing of slide content
-- When clicking on text:
+- Enable 100% direct inline editing of all slide content
+- When clicking on any text element (including titles, paragraphs, and bullet points):
   - Make text directly editable in place
-  - Show formatting toolbar near the selected text
-- Replace the modal editor with in-place editing
+  - Apply changes in real-time as the user types
+- Replace all modal editors with in-place editing
+- For bullet points:
+  - Allow direct inline editing of each bullet point by clicking on it
+  - Show add/remove bullet controls directly within the slide when editing
+  - Allow direct manipulation of bullet order
 - Apply changes immediately without confirmation dialogs
 
 ### 3. Improved Image Handling
@@ -52,9 +56,10 @@ This document outlines the plans for redesigning the Presentation Builder UI to 
 ### Phase 1: Component Structure Updates
 1. Create new SlideLibrary component (simplified from current TemplateLibrary)
 2. Create EditableSlide component with direct editing capabilities
-3. Create EditableText component for inline text editing
-4. Create UploadableImage component for direct image uploads
-5. Create SlideControls component for slide management
+3. Create EditableText component for all inline text editing (titles, paragraphs, bullet points)
+4. Create EditableBulletList component for inline bullet point editing
+5. Create UploadableImage component for direct image uploads
+6. Create SlideControls component for slide management
 
 ### Phase 2: Layout Changes
 1. Update main layout to use a two-panel design instead of three panels
@@ -63,10 +68,11 @@ This document outlines the plans for redesigning the Presentation Builder UI to 
 4. Update styling to maintain visual consistency
 
 ### Phase 3: Interaction Implementation
-1. Implement direct text editing with focus/blur events
-2. Implement clickable image areas with upload functionality
-3. Implement slide management controls
-4. Add appropriate hover states and visual indicators
+1. Implement direct text editing for all text elements using focus/blur events
+2. Implement inline bullet point editing with add/remove functionality
+3. Implement clickable image areas with upload functionality
+4. Implement slide management controls
+5. Add appropriate hover states and visual indicators
 
 ### Phase 4: Testing & Refinement
 1. Test all interactions for usability
@@ -77,7 +83,7 @@ This document outlines the plans for redesigning the Presentation Builder UI to 
 ## Technical Considerations
 
 ### State Management
-- Update state management to handle direct editing
+- Update state management to handle direct editing of all elements
 - Track focus state for editable elements
 - Maintain slide order state for reordering
 
@@ -116,15 +122,15 @@ This document outlines the plans for redesigning the Presentation Builder UI to 
 |                    |          |                           |       |
 | +--------------+   |          +---------------------------+       |
 | | Text + Left  |   |                                              |
-| | Image        |   |                                              |
+| | Image        |   |          • Directly Editable Bullet          |
+| +--------------+   |          • Click to Edit Any Bullet          |
+|                    |          • Add/Remove Controls Inline        |
 | +--------------+   |                                              |
+| | Text + Triple|   |                              +-----------+   |
+| | Image        |   |                              | Up  Down  |   |
+| +--------------+   |                              | Del Dupl  |   |
 |                    |                              +-----------+   |
-| +--------------+   |                              | Up  Down  |   |
-| | Text + Triple|   |                              | Del Dupl  |   |
-| | Image        |   |                              +-----------+   |
-| +--------------+   |                                              |
-|                    +----------------------------------------------+
-+--------------------+
++--------------------+----------------------------------------------+
 ```
 
 This plan will be implemented incrementally to ensure the application remains functional throughout the redesign process.
