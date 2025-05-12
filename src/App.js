@@ -667,8 +667,8 @@ function PresentationBuilder() {
                           initialImage={editForm.images?.main?.url}
                           placeholderSize="1200x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
-                          className="h-full rounded overflow-hidden border border-gray-300"
-                          label="Upload Background Image"
+                          className="h-full rounded overflow-hidden"
+                          label="Upload Image"
                         />
                       </div>
                     </div>
@@ -683,8 +683,8 @@ function PresentationBuilder() {
                           initialImage={editForm.images?.main?.url}
                           placeholderSize="600x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
-                          className="h-full rounded overflow-hidden border border-gray-300"
-                          label="Upload Right Image"
+                          className="h-full rounded overflow-hidden"
+                          label="Upload Image"
                         />
                       </div>
                     </div>
@@ -699,8 +699,8 @@ function PresentationBuilder() {
                           initialImage={editForm.images?.main?.url}
                           placeholderSize="600x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
-                          className="h-full rounded overflow-hidden border border-gray-300"
-                          label="Upload Left Image"
+                          className="h-full rounded overflow-hidden"
+                          label="Upload Image"
                         />
                       </div>
                     </div>
@@ -717,8 +717,8 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid1?.url}
                             placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid1', imageData)}
-                            className="h-32 rounded overflow-hidden border border-gray-300"
-                            label="Upload"
+                            className="h-32 rounded overflow-hidden"
+                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -727,8 +727,8 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid2?.url}
                             placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid2', imageData)}
-                            className="h-32 rounded overflow-hidden border border-gray-300"
-                            label="Upload"
+                            className="h-32 rounded overflow-hidden"
+                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -737,8 +737,8 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid3?.url}
                             placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid3', imageData)}
-                            className="h-32 rounded overflow-hidden border border-gray-300"
-                            label="Upload"
+                            className="h-32 rounded overflow-hidden"
+                            label="Upload Image"
                           />
                         </div>
                       </div>
@@ -756,8 +756,8 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.top?.url}
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('top', imageData)}
-                            className="h-40 rounded overflow-hidden border border-gray-300"
-                            label="Upload Top Image"
+                            className="h-40 rounded overflow-hidden"
+                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -766,8 +766,8 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.bottom?.url}
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('bottom', imageData)}
-                            className="h-40 rounded overflow-hidden border border-gray-300"
-                            label="Upload Bottom Image"
+                            className="h-40 rounded overflow-hidden"
+                            label="Upload Image"
                           />
                         </div>
                       </div>
@@ -786,8 +786,8 @@ function PresentationBuilder() {
                               initialImage={editForm.images?.[`grid${i+1}`]?.url}
                               placeholderSize="400x225"
                               onImageChange={(imageData) => handleImageChange(`grid${i+1}`, imageData)}
-                              className="h-24 rounded overflow-hidden border border-gray-300"
-                              label="Upload"
+                              className="h-24 rounded overflow-hidden"
+                              label="Upload Image"
                             />
                           </div>
                         ))}
@@ -806,7 +806,7 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid1?.url}
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid1', imageData)}
-                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            className="h-40 rounded overflow-hidden"
                             label="Upload Image"
                           />
                         </div>
@@ -816,7 +816,7 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid2?.url}
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid2', imageData)}
-                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            className="h-40 rounded overflow-hidden"
                             label="Upload Image"
                           />
                         </div>
@@ -826,7 +826,7 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid3?.url}
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid3', imageData)}
-                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            className="h-40 rounded overflow-hidden"
                             label="Upload Image"
                           />
                         </div>
@@ -836,7 +836,7 @@ function PresentationBuilder() {
                             initialImage={editForm.images?.grid4?.url}
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid4', imageData)}
-                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            className="h-40 rounded overflow-hidden"
                             label="Upload Image"
                           />
                         </div>
