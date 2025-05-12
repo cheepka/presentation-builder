@@ -20,7 +20,7 @@ function ImageUpload({
   className = '', 
   label = 'Upload Image' 
 }) {
-  const [previewUrl, setPreviewUrl] = useState(initialImage || `https://via.placeholder.com/${placeholderSize}`);
+  const [previewUrl, setPreviewUrl] = useState(initialImage || null);
   const [isPlaceholder, setIsPlaceholder] = useState(!initialImage);
   const fileInputRef = useRef(null);
 
@@ -30,10 +30,10 @@ function ImageUpload({
       setPreviewUrl(initialImage);
       setIsPlaceholder(false);
     } else {
-      setPreviewUrl(`https://via.placeholder.com/${placeholderSize}`);
+      setPreviewUrl(null);
       setIsPlaceholder(true);
     }
-  }, [initialImage, placeholderSize]);
+  }, [initialImage]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -64,7 +64,7 @@ function ImageUpload({
 
   const clearImage = () => {
     // Reset to placeholder
-    setPreviewUrl(`https://via.placeholder.com/${placeholderSize}`);
+    setPreviewUrl(null);
     setIsPlaceholder(true);
     
     // Clear the file input
@@ -79,25 +79,24 @@ function ImageUpload({
   };
 
   const triggerFileInput = () => {
-    // Extra console log to debug
-    console.log("File input trigger clicked");
-    
     if (fileInputRef.current) {
-      console.log("File input ref exists, clicking it");
       fileInputRef.current.click();
-    } else {
-      console.log("File input ref is null");
     }
   };
 
   return (
     <div className={`relative group ${className}`}>
-      <div className="relative w-full h-full overflow-hidden">
-        <img 
-          src={previewUrl} 
-          alt="Selected preview" 
-          className={`w-full h-full object-cover ${isPlaceholder ? 'opacity-50' : ''}`}
-        />
+      <div className="relative w-full h-full overflow-hidden bg-gray-100 rounded border border-gray-300">
+        {/* Only show image if we have a preview URL */}
+        {previewUrl ? (
+          <img 
+            src={previewUrl} 
+            alt="Preview" 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full"></div>
+        )}
         
         {/* Overlay controls that show on hover */}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
@@ -106,7 +105,7 @@ function ImageUpload({
               type="button"
               onClick={triggerFileInput}
               className="p-2 bg-white bg-opacity-90 rounded-full shadow hover:bg-opacity-100"
-              title={label}
+              title="Upload Image"
             >
               <Upload size={20} className="text-gray-800" />
             </button>
