@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Edit2, Trash2, Image, Plus, Monitor, Type, Layout } from 'lucide-react';
+import ImageUpload from './components/ImageUpload';
 
 // Main App Component
 function PresentationBuilder() {
@@ -10,7 +11,9 @@ function PresentationBuilder() {
       type: 'fullImage',
       title: 'Your Title Here',
       subtitle: 'Subtitle Text Here',
-      attribution: 'Your Name / Company'
+      attribution: 'Your Name / Company',
+      // Default with no custom image
+      images: {}
     }
   ]);
   
@@ -18,7 +21,8 @@ function PresentationBuilder() {
   const [editForm, setEditForm] = useState({
     title: '',
     content: '',
-    attribution: ''
+    attribution: '',
+    images: {}
   });
 
   // Library of templates
@@ -68,7 +72,8 @@ function PresentationBuilder() {
         type: template.type,
         uniqueId: Date.now().toString(),
         title: getDefaultTitle(template.type),
-        content: getDefaultContent(template.type)
+        content: getDefaultContent(template.type),
+        images: {} // Initialize empty images object for all slide types
       };
       
       // Add specific properties based on slide type
@@ -134,7 +139,8 @@ function PresentationBuilder() {
       subtitle: slide.subtitle || '',
       content: slide.content || '',
       attribution: slide.attribution || '',
-      bulletPoints: slide.bulletPoints || []
+      bulletPoints: slide.bulletPoints || [],
+      images: slide.images || {} // Include images in edit form
     });
   };
 
@@ -164,6 +170,33 @@ function PresentationBuilder() {
     newSlides.splice(newIndex, 0, slideToMove);
     
     setSlides(newSlides);
+  };
+
+  // Handle image change from ImageUpload component
+  const handleImageChange = (position, imageData) => {
+    setEditForm({
+      ...editForm,
+      images: {
+        ...editForm.images,
+        [position]: imageData
+      }
+    });
+  };
+
+  // Get image URL based on slide type and position
+  const getImageUrl = (slide, position, defaultSize = '600x400') => {
+    // If there's a custom image for this position, use it
+    if (slide.images && slide.images[position] && slide.images[position].url) {
+      return slide.images[position].url;
+    }
+    
+    // Otherwise use placeholder
+    return `https://via.placeholder.com/${defaultSize}`;
+  };
+
+  // Check if image is a placeholder (not custom uploaded)
+  const isPlaceholderImage = (slide, position) => {
+    return !(slide.images && slide.images[position] && slide.images[position].url);
   };
 
   return (
@@ -266,11 +299,11 @@ function PresentationBuilder() {
                       {/* Full Image Template */}
                       {slide.type === 'fullImage' && (
                         <div className="w-full h-full relative overflow-hidden">
-                          {/* This is a real image element */}
+                          {/* Image with optional user uploaded image */}
                           <div className="absolute inset-0">
                             <img 
-                              src="https://via.placeholder.com/1200x675" 
-                              alt="Data center hallway"
+                              src={getImageUrl(slide, 'main', '1200x675')} 
+                              alt="Background image"
                               className="w-full h-full object-cover opacity-60"
                             />
                           </div>
@@ -308,11 +341,11 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Right image section - this is a real image */}
+                          {/* Right image section - with optional uploaded image */}
                           <div className="w-1/2 bg-gray-800 relative">
                             <img 
-                              src="https://via.placeholder.com/600x675" 
-                              alt="Server room"
+                              src={getImageUrl(slide, 'main', '600x675')}
+                              alt="Right side image"
                               className="w-full h-full object-cover opacity-70"
                             />
                           </div>
@@ -322,11 +355,11 @@ function PresentationBuilder() {
                       {/* Left Image Template */}
                       {slide.type === 'leftImage' && (
                         <div className="w-full h-full flex">
-                          {/* Left image section - this is a real image */}
+                          {/* Left image section - with optional uploaded image */}
                           <div className="w-1/2 bg-gray-800 relative">
                             <img 
-                              src="https://via.placeholder.com/600x675" 
-                              alt="Tech worker"
+                              src={getImageUrl(slide, 'main', '600x675')}
+                              alt="Left side image"
                               className="w-full h-full object-cover opacity-70"
                             />
                           </div>
@@ -374,26 +407,26 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Right image grid section - using real images */}
+                          {/* Right image grid section - with optional uploaded images */}
                           <div className="w-1/2 grid grid-cols-1 grid-rows-3 gap-1">
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x225" 
-                                alt="Lab notes"
+                                src={getImageUrl(slide, 'grid1', '600x225')}
+                                alt="Top grid image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x225" 
-                                alt="Scientist"
+                                src={getImageUrl(slide, 'grid2', '600x225')}
+                                alt="Middle grid image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x225" 
-                                alt="Close-up"
+                                src={getImageUrl(slide, 'grid3', '600x225')}
+                                alt="Bottom grid image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -416,19 +449,19 @@ function PresentationBuilder() {
                             </div>
                           </div>
                           
-                          {/* Right split image section - using real images */}
+                          {/* Right split image section - with optional uploaded images */}
                           <div className="w-1/2 grid grid-rows-2 gap-1">
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x337" 
-                                alt="Office entrance"
+                                src={getImageUrl(slide, 'top', '600x337')}
+                                alt="Top image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x337" 
-                                alt="Glass ceiling"
+                                src={getImageUrl(slide, 'bottom', '600x337')}
+                                alt="Bottom image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -443,7 +476,7 @@ function PresentationBuilder() {
                             {Array(9).fill(0).map((_, i) => (
                               <div key={i} className="relative">
                                 <img 
-                                  src={`https://via.placeholder.com/400x225`} 
+                                  src={getImageUrl(slide, `grid${i+1}`, '400x225')}
                                   alt={`Grid image ${i+1}`}
                                   className="w-full h-full object-cover"
                                 />
@@ -464,29 +497,29 @@ function PresentationBuilder() {
                           <div className="grid grid-cols-2 grid-rows-2 gap-1 h-full">
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x337" 
-                                alt="Server corridor"
+                                src={getImageUrl(slide, 'grid1', '600x337')}
+                                alt="Top left image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x337" 
-                                alt="Data center discussion"
+                                src={getImageUrl(slide, 'grid2', '600x337')}
+                                alt="Top right image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x337" 
-                                alt="IT specialist"
+                                src={getImageUrl(slide, 'grid3', '600x337')}
+                                alt="Bottom left image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="relative">
                               <img 
-                                src="https://via.placeholder.com/600x337" 
-                                alt="Tech working"
+                                src={getImageUrl(slide, 'grid4', '600x337')}
+                                alt="Bottom right image"
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -527,7 +560,7 @@ function PresentationBuilder() {
       {/* Edit Modal */}
       {editingSlide && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-6">Edit Slide Content</h2>
               
@@ -620,6 +653,197 @@ function PresentationBuilder() {
                     />
                   </div>
                 )}
+
+                {/* Image Upload Section */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">Images</h3>
+                  
+                  {/* Full Image Template */}
+                  {editingSlide.type === 'fullImage' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Background Image</label>
+                      <div className="aspect-video max-h-80">
+                        <ImageUpload
+                          initialImage={editForm.images?.main?.url}
+                          placeholderSize="1200x675"
+                          onImageChange={(imageData) => handleImageChange('main', imageData)}
+                          className="h-full rounded overflow-hidden border border-gray-300"
+                          label="Upload Background Image"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Right Image Template */}
+                  {editingSlide.type === 'rightImage' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Right Side Image</label>
+                      <div className="aspect-video max-h-80">
+                        <ImageUpload
+                          initialImage={editForm.images?.main?.url}
+                          placeholderSize="600x675"
+                          onImageChange={(imageData) => handleImageChange('main', imageData)}
+                          className="h-full rounded overflow-hidden border border-gray-300"
+                          label="Upload Right Image"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Left Image Template */}
+                  {editingSlide.type === 'leftImage' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Left Side Image</label>
+                      <div className="aspect-video max-h-80">
+                        <ImageUpload
+                          initialImage={editForm.images?.main?.url}
+                          placeholderSize="600x675"
+                          onImageChange={(imageData) => handleImageChange('main', imageData)}
+                          className="h-full rounded overflow-hidden border border-gray-300"
+                          label="Upload Left Image"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Right Grid Template */}
+                  {editingSlide.type === 'rightGrid' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Grid Images</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Top Image</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid1?.url}
+                            placeholderSize="600x225"
+                            onImageChange={(imageData) => handleImageChange('grid1', imageData)}
+                            className="h-32 rounded overflow-hidden border border-gray-300"
+                            label="Upload"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Middle Image</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid2?.url}
+                            placeholderSize="600x225"
+                            onImageChange={(imageData) => handleImageChange('grid2', imageData)}
+                            className="h-32 rounded overflow-hidden border border-gray-300"
+                            label="Upload"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Bottom Image</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid3?.url}
+                            placeholderSize="600x225"
+                            onImageChange={(imageData) => handleImageChange('grid3', imageData)}
+                            className="h-32 rounded overflow-hidden border border-gray-300"
+                            label="Upload"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Split Vertical Template */}
+                  {editingSlide.type === 'splitVertical' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Split Images</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Top Image</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.top?.url}
+                            placeholderSize="600x337"
+                            onImageChange={(imageData) => handleImageChange('top', imageData)}
+                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            label="Upload Top Image"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Bottom Image</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.bottom?.url}
+                            placeholderSize="600x337"
+                            onImageChange={(imageData) => handleImageChange('bottom', imageData)}
+                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            label="Upload Bottom Image"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Image Grid Template */}
+                  {editingSlide.type === 'imageGrid' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Grid Images</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {Array(9).fill(0).map((_, i) => (
+                          <div key={i}>
+                            <div className="text-xs text-gray-500 mb-1">Image {i+1}</div>
+                            <ImageUpload
+                              initialImage={editForm.images?.[`grid${i+1}`]?.url}
+                              placeholderSize="400x225"
+                              onImageChange={(imageData) => handleImageChange(`grid${i+1}`, imageData)}
+                              className="h-24 rounded overflow-hidden border border-gray-300"
+                              label="Upload"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Four Grid Template */}
+                  {editingSlide.type === 'fourGrid' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Grid Images</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Top Left</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid1?.url}
+                            placeholderSize="600x337"
+                            onImageChange={(imageData) => handleImageChange('grid1', imageData)}
+                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            label="Upload Image"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Top Right</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid2?.url}
+                            placeholderSize="600x337"
+                            onImageChange={(imageData) => handleImageChange('grid2', imageData)}
+                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            label="Upload Image"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Bottom Left</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid3?.url}
+                            placeholderSize="600x337"
+                            onImageChange={(imageData) => handleImageChange('grid3', imageData)}
+                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            label="Upload Image"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">Bottom Right</div>
+                          <ImageUpload
+                            initialImage={editForm.images?.grid4?.url}
+                            placeholderSize="600x337"
+                            onImageChange={(imageData) => handleImageChange('grid4', imageData)}
+                            className="h-40 rounded overflow-hidden border border-gray-300"
+                            label="Upload Image"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
