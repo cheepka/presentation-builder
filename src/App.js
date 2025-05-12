@@ -46,14 +46,9 @@ function PresentationBuilderApp() {
     }
   };
   
-  // Render slide based on its type
-  const renderSlide = (slide) => {
-    switch (slide.type) {
-      case 'fullImage':
-        return <FullImageSlide slide={slide} />;
-      default:
-        return <div className="text-white p-4">Slide type not implemented yet</div>;
-    }
+  // Handle moving a slide up or down
+  const handleMoveSlide = (index, direction) => {
+    moveSlide(index, direction);
   };
   
   // Left panel content - Slide Library
@@ -81,12 +76,33 @@ function PresentationBuilderApp() {
               index={index}
               totalSlides={slides.length}
               onUpdate={updateSlide}
-              onMoveUp={moveSlide}
-              onMoveDown={moveSlide}
+              onMoveUp={(idx) => handleMoveSlide(idx, 'up')}
+              onMoveDown={(idx) => handleMoveSlide(idx, 'down')}
               onDelete={removeSlide}
               onDuplicate={duplicateSlide}
             >
-              {renderSlide(slide)}
+              <FullImageSlide 
+                slide={slide} 
+                onUpdate={(field, value) => updateSlide(index, field, value)}
+                onImageChange={(imageData) => {
+                  if (!imageData) {
+                    // Handle image removal
+                    const updatedImages = { ...slide.images };
+                    delete updatedImages.main;
+                    updateSlide(index, 'images', updatedImages);
+                  } else {
+                    // Handle image update
+                    updateSlide(index, 'images', {
+                      ...slide.images,
+                      main: {
+                        url: imageData.url,
+                        name: imageData.name,
+                        type: imageData.type
+                      }
+                    });
+                  }
+                }}
+              />
             </EditableSlide>
           ))}
         </div>
