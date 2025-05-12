@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 
 /**
  * ImageUpload Component
@@ -11,14 +11,12 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react';
  * @param {string} [props.placeholderSize='600x400'] - Size of placeholder image if no image is uploaded
  * @param {Function} props.onImageChange - Callback when image is selected/changed
  * @param {string} [props.className] - Additional CSS classes
- * @param {string} [props.label='Upload Image'] - Label text for the upload button
  */
 function ImageUpload({ 
   initialImage, 
   placeholderSize = '600x400',
   onImageChange, 
-  className = '', 
-  label = 'Upload Image' 
+  className = ''
 }) {
   const [previewUrl, setPreviewUrl] = useState(initialImage || null);
   const [isPlaceholder, setIsPlaceholder] = useState(!initialImage);
@@ -86,8 +84,11 @@ function ImageUpload({
 
   return (
     <div className={`relative group ${className}`}>
-      <div className="relative w-full h-full overflow-hidden bg-gray-100 rounded border border-gray-300">
-        {/* Only show image if we have a preview URL */}
+      <div 
+        className="relative w-full h-full overflow-hidden bg-gray-100 rounded border border-gray-300 cursor-pointer transition-all duration-200 hover:bg-gray-200"
+        onClick={triggerFileInput}
+      >
+        {/* If we have a preview URL, show the image */}
         {previewUrl ? (
           <img 
             src={previewUrl} 
@@ -95,43 +96,34 @@ function ImageUpload({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full"></div>
+          // Otherwise show a nice gradient placeholder
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center">
+            <Upload size={24} className="text-gray-500" />
+          </div>
         )}
         
-        {/* Overlay controls that show on hover */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              onClick={triggerFileInput}
-              className="p-2 bg-white bg-opacity-90 rounded-full shadow hover:bg-opacity-100"
-              title="Upload Image"
-            >
+        {/* Hover effect */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="bg-black bg-opacity-40 w-full h-full flex items-center justify-center">
+            <div className="p-2 bg-white bg-opacity-90 rounded-full shadow">
               <Upload size={20} className="text-gray-800" />
-            </button>
-            
-            {!isPlaceholder && (
-              <button
-                type="button"
-                onClick={clearImage}
-                className="p-2 bg-white bg-opacity-90 rounded-full shadow hover:bg-opacity-100"
-                title="Remove image"
-              >
-                <X size={20} className="text-red-600" />
-              </button>
-            )}
+            </div>
           </div>
         </div>
         
-        {/* Placeholder overlay when no image */}
-        {isPlaceholder && (
-          <div 
-            className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 cursor-pointer"
-            onClick={triggerFileInput}
+        {/* Remove button - only show if we have an image */}
+        {!isPlaceholder && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              clearImage();
+            }}
+            className="absolute top-2 right-2 p-1 bg-white bg-opacity-90 rounded-full shadow hover:bg-opacity-100 z-10"
+            title="Remove image"
           >
-            <ImageIcon size={36} />
-            <span className="mt-2 text-sm">{label}</span>
-          </div>
+            <X size={16} className="text-red-600" />
+          </button>
         )}
       </div>
       
