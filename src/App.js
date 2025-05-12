@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PresentationProvider, usePresentation } from './context/PresentationContext';
 import TwoPanelLayout from './components/layout/TwoPanelLayout';
 import Header from './components/Header';
 import SlideLibrary from './components/slideLibrary/SlideLibrary';
 import EditableSlide from './components/slideEditor/EditableSlide';
 import FullImageSlide from './components/slideTypes/FullImageSlide';
+import RightImageSlide from './components/slideTypes/RightImageSlide';
+import LeftImageSlide from './components/slideTypes/LeftImageSlide';
+import RightGridSlide from './components/slideTypes/RightGridSlide';
+import SplitVerticalSlide from './components/slideTypes/SplitVerticalSlide';
+import ImageGridSlide from './components/slideTypes/ImageGridSlide';
+import FourGridSlide from './components/slideTypes/FourGridSlide';
 import slideTemplates from './utils/slideTemplates';
 
 /**
@@ -51,6 +57,64 @@ function PresentationBuilderApp() {
     moveSlide(index, direction);
   };
   
+  // Handle image changes
+  const handleImageChange = (index, imageData) => {
+    if (!imageData) {
+      // Handle image removal
+      const slide = slides[index];
+      const updatedImages = { ...slide.images };
+      delete updatedImages[imageData?.position || 'main'];
+      updateSlide(index, 'images', updatedImages);
+    } else {
+      // Handle image update
+      const position = imageData.position || 'main';
+      const slide = slides[index];
+      updateSlide(index, 'images', {
+        ...slide.images,
+        [position]: {
+          url: imageData.url,
+          name: imageData.name,
+          type: imageData.type
+        }
+      });
+    }
+  };
+  
+  // Render appropriate slide component based on slide type
+  const renderSlideContent = (slide, index) => {
+    const props = {
+      slide,
+      onUpdate: (field, value) => updateSlide(index, field, value),
+      onImageChange: (imageData) => handleImageChange(index, imageData)
+    };
+    
+    switch (slide.type) {
+      case 'fullImage':
+        return <FullImageSlide {...props} />;
+      case 'rightImage':
+        return <RightImageSlide {...props} />;
+      case 'leftImage':
+        return <LeftImageSlide {...props} />;
+      case 'rightGrid':
+        return <RightGridSlide {...props} />;
+      case 'splitVertical':
+        return <SplitVerticalSlide {...props} />;
+      case 'imageGrid':
+        return <ImageGridSlide {...props} />;
+      case 'fourGrid':
+        return <FourGridSlide {...props} />;
+      default:
+        return (
+          <div className="w-full h-full flex items-center justify-center bg-gray-800">
+            <div className="text-white text-center p-8">
+              <h3 className="text-xl font-bold mb-2">Unsupported Slide Type</h3>
+              <p>The slide type "{slide.type}" is not supported in this version.</p>
+            </div>
+          </div>
+        );
+    }
+  };
+  
   // Left panel content - Slide Library
   const leftPanel = (
     <SlideLibrary
@@ -81,28 +145,7 @@ function PresentationBuilderApp() {
               onDelete={removeSlide}
               onDuplicate={duplicateSlide}
             >
-              <FullImageSlide 
-                slide={slide} 
-                onUpdate={(field, value) => updateSlide(index, field, value)}
-                onImageChange={(imageData) => {
-                  if (!imageData) {
-                    // Handle image removal
-                    const updatedImages = { ...slide.images };
-                    delete updatedImages.main;
-                    updateSlide(index, 'images', updatedImages);
-                  } else {
-                    // Handle image update
-                    updateSlide(index, 'images', {
-                      ...slide.images,
-                      main: {
-                        url: imageData.url,
-                        name: imageData.name,
-                        type: imageData.type
-                      }
-                    });
-                  }
-                }}
-              />
+              {renderSlideContent(slide, index)}
             </EditableSlide>
           ))}
         </div>
