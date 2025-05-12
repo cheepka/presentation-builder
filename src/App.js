@@ -190,8 +190,47 @@ function PresentationBuilder() {
       return slide.images[position].url;
     }
     
-    // Otherwise use placeholder
-    return `https://via.placeholder.com/${defaultSize}`;
+    // Otherwise use good quality placeholder based on position and slide type
+    // This gives more professional placeholders that fit the context
+    const category = getPlaceholderCategory(slide.type, position);
+    return `https://source.unsplash.com/featured/?${category}&${defaultSize}`;
+  };
+
+  // Get appropriate placeholder category based on slide type and position
+  const getPlaceholderCategory = (slideType, position) => {
+    switch(slideType) {
+      case 'fullImage':
+        return 'business,modern';
+      case 'rightImage':
+      case 'leftImage':
+        return 'office,professional';
+      case 'rightGrid':
+        if (position === 'grid1') return 'teamwork';
+        if (position === 'grid2') return 'meeting';
+        if (position === 'grid3') return 'technology';
+        return 'business';
+      case 'splitVertical':
+        if (position === 'top') return 'architecture';
+        if (position === 'bottom') return 'design';
+        return 'business';
+      case 'imageGrid':
+        // Generate varied categories for the grid
+        const gridCategories = [
+          'workspace', 'creative', 'design',
+          'technology', 'modern', 'office',
+          'architecture', 'business', 'teamwork'
+        ];
+        const gridPosition = parseInt(position.replace('grid', '')) - 1;
+        return gridCategories[gridPosition] || 'business';
+      case 'fourGrid':
+        if (position === 'grid1') return 'design';
+        if (position === 'grid2') return 'workspace';
+        if (position === 'grid3') return 'architecture';
+        if (position === 'grid4') return 'technology';
+        return 'business';
+      default:
+        return 'business';
+    }
   };
 
   // Check if image is a placeholder (not custom uploaded)
@@ -668,7 +707,6 @@ function PresentationBuilder() {
                           placeholderSize="1200x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
                           className="h-full rounded overflow-hidden"
-                          label="Upload Image"
                         />
                       </div>
                     </div>
@@ -684,7 +722,6 @@ function PresentationBuilder() {
                           placeholderSize="600x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
                           className="h-full rounded overflow-hidden"
-                          label="Upload Image"
                         />
                       </div>
                     </div>
@@ -700,7 +737,6 @@ function PresentationBuilder() {
                           placeholderSize="600x675"
                           onImageChange={(imageData) => handleImageChange('main', imageData)}
                           className="h-full rounded overflow-hidden"
-                          label="Upload Image"
                         />
                       </div>
                     </div>
@@ -718,7 +754,6 @@ function PresentationBuilder() {
                             placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid1', imageData)}
                             className="h-32 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -728,7 +763,6 @@ function PresentationBuilder() {
                             placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid2', imageData)}
                             className="h-32 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -738,7 +772,6 @@ function PresentationBuilder() {
                             placeholderSize="600x225"
                             onImageChange={(imageData) => handleImageChange('grid3', imageData)}
                             className="h-32 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                       </div>
@@ -757,7 +790,6 @@ function PresentationBuilder() {
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('top', imageData)}
                             className="h-40 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -767,7 +799,6 @@ function PresentationBuilder() {
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('bottom', imageData)}
                             className="h-40 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                       </div>
@@ -787,7 +818,6 @@ function PresentationBuilder() {
                               placeholderSize="400x225"
                               onImageChange={(imageData) => handleImageChange(`grid${i+1}`, imageData)}
                               className="h-24 rounded overflow-hidden"
-                              label="Upload Image"
                             />
                           </div>
                         ))}
@@ -807,7 +837,6 @@ function PresentationBuilder() {
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid1', imageData)}
                             className="h-40 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -817,7 +846,6 @@ function PresentationBuilder() {
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid2', imageData)}
                             className="h-40 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -827,7 +855,6 @@ function PresentationBuilder() {
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid3', imageData)}
                             className="h-40 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                         <div>
@@ -837,7 +864,6 @@ function PresentationBuilder() {
                             placeholderSize="600x337"
                             onImageChange={(imageData) => handleImageChange('grid4', imageData)}
                             className="h-40 rounded overflow-hidden"
-                            label="Upload Image"
                           />
                         </div>
                       </div>
