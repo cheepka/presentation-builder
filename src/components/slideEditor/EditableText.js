@@ -3,7 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 /**
  * EditableText Component
  * 
- * A component that renders as normal text but becomes editable when clicked.
+ * A streamlined component for direct inline text editing, similar to Apple Keynote.
+ * No hover effects or complex transitions - just clean, simple editing.
  * 
  * @param {Object} props
  * @param {string} props.value - The text content to display and edit
@@ -58,11 +59,14 @@ function EditableText({
 
   // Save changes and exit edit mode
   const saveChanges = () => {
-    onChange(text);
+    // Only trigger onChange if the text has actually changed
+    if (text !== value) {
+      onChange(text);
+    }
     setIsEditing(false);
   };
   
-  // Handle enter key to save
+  // Handle key presses
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -82,7 +86,7 @@ function EditableText({
   const Element = as;
   
   if (isEditing) {
-    // Show editable textarea
+    // Show editable input with seamless styling
     return (
       <textarea
         ref={inputRef}
@@ -94,19 +98,20 @@ function EditableText({
           width: '100%',
           minHeight: '1.5em',
           padding: '0.25em',
+          background: 'transparent',
           ...fontStyles
         }}
-        className={`border border-blue-400 rounded ${textClassName}`}
+        className={`outline-none border border-blue-300 ${textClassName}`}
         placeholder={placeholder}
       />
     );
   }
   
-  // Show static text that becomes editable when clicked
+  // Show static text that becomes editable when clicked (no hover effects)
   return (
     <Element
       onClick={() => setIsEditing(true)}
-      className={`cursor-text ${textClassName} hover:bg-blue-50 hover:ring-1 hover:ring-blue-200 hover:rounded transition-all duration-100`}
+      className={`cursor-text ${textClassName}`}
       style={fontStyles}
     >
       {value || <span className="text-gray-400">{placeholder}</span>}
