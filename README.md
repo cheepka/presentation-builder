@@ -1,149 +1,100 @@
 # Presentation Builder
 
-A web-based application for creating customizable presentations with various slide templates. Built with React and styled with Tailwind CSS.
+A React application for creating and editing slide-based presentations with customizable templates and image integration.
 
 ## Features
 
-- Create presentations with seven different slide layouts:
-  - Title Slide
-  - Text + Right Image
-  - Text + Left Image
-  - Full Image with Title
-  - 9-Image Grid
-  - 4-Image Grid
-  - Split Vertical (Text + Two Images)
+- Intuitive slide editor with multiple template options
+- Image library with upload functionality
+- Inline text editing for slides
+- Image selection modal for template images
+- Responsive design
 
-- Comprehensive slide management:
-  - Add slides from templates
-  - Duplicate existing slides
-  - Delete unwanted slides
-  - Reorder slides using up/down controls
-  - Navigate between slides with simple clicks
-
-- Text editing capabilities:
-  - Click-to-edit functionality for all text elements
-  - Support for titles, subtitles, and bullet points
-  - Keyboard shortcuts (Enter to save, Escape to cancel)
-  - Visual feedback during editing
-
-- Image handling:
-  - Upload images to slides
-  - Modern placeholder interface for empty image slots
-  - Aspect ratio-optimized grid layouts
-  - Optional titles with toggle visibility
-  - Proper image containment within slide dimensions
-
-- Professional, intuitive interface:
-  - Three-panel layout inspired by desktop presentation software
-  - Clean, modern design with a focus on usability
-  - Accordion menus for tool organization
-
-## Project Structure
-
-The application follows a modular component architecture:
-
-```
-src/
-├── components/             # React components
-│   ├── EditableText.js     # Inline text editing component
-│   ├── Header.js           # Application header
-│   ├── ImageLibrary.js     # Image upload and management
-│   ├── RightPanel.js       # Right panel with accordions
-│   ├── SlideEditor.js      # Current slide editor
-│   ├── SlideNavigator.js   # Left panel slide management
-│   ├── TemplateLibrary.js  # Slide template selection
-│   └── layout/             # Layout components
-│       ├── Accordion.js    # Collapsible panel component
-│       └── MainLayout.js   # Three-panel layout structure
-├── context/                # Context providers
-│   └── PresentationContext.js # Global state management
-├── utils/                  # Utility functions
-│   ├── imageUtils.js       # Image handling utilities
-│   └── slideTemplates.js   # Slide template definitions
-├── App.js                  # Main application component
-└── index.js                # Application entry point
-```
-
-## Technology Stack
-
-- **React**: Frontend library for building the user interface
-- **Tailwind CSS**: Utility-first CSS framework for styling
-- **Context API**: For global state management
-
-## Development
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14.0.0 or higher)
-- npm (v6.0.0 or higher)
+- Node.js 14.x or higher
+- npm or yarn
 
 ### Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/cheepka/presentation-builder.git
-   ```
+```
+git clone https://github.com/cheepka/presentation-builder.git
+cd presentation-builder
+```
 
-2. Navigate to the project directory:
-   ```
-   cd presentation-builder
-   ```
+2. Install dependencies:
+```
+npm install
+```
 
-3. Check out the optimized version:
-   ```
-   git checkout feature/rebuild-optimized
-   ```
+3. Start the development server:
+```
+npm start
+```
 
-4. Install dependencies:
-   ```
-   npm install
-   ```
+## Working with AI Assistants
 
-5. Start the development server:
-   ```
-   npm start
-   ```
+This section provides guidelines for both AI agents and human collaborators to effectively work with this repository.
 
-6. Open your browser and navigate to `http://localhost:3000`
+### Version Control Guidelines
+
+- We use semantic versioning (X.Y.Z format)
+- Each significant feature release is tagged (e.g., v0.2.0)
+- Feature branches are named `feature/feature-name`
+- Bug fix branches are named `fix/issue-description`
+
+### Effective AI Agent Prompts
+
+When working with AI assistants on this project, use these prompt templates for best results:
+
+#### Starting a new feature
+
+```
+I'm working on the presentation-builder project (github.com/cheepka/presentation-builder), 
+currently at version X.Y.Z. Please help me create a new feature branch called 
+'feature/feature-name' to implement [feature description].
+```
+
+#### Exploring the codebase
+
+```
+Please explore the presentation-builder repository to understand its structure. 
+Focus on [specific area of interest] and explain how it's implemented.
+```
+
+#### Working with specific versions
+
+```
+I need to reference version X.Y.Z of the presentation-builder. Please check out 
+that version tag and help me understand [specific question about that version].
+```
+
+#### Analyzing changes
+
+```
+Please analyze the changes between vX.Y.Z and vA.B.C of the presentation-builder
+to summarize what functionality was added or modified.
+```
+
+### Repository Structure
+
+- `src/components/` - React components
+  - `slideEditor/` - Components for slide editing functionality  
+  - `slideTypes/` - Template components for different slide layouts
+- `src/context/` - React context providers for state management
+- `src/utils/` - Utility functions and helpers
 
 ### Development Workflow
 
-1. Create a feature branch for new development:
-   ```
-   git checkout -b feature/your-feature-name
-   ```
-
-2. Implement your changes
-
-3. Submit a pull request for review
-
-## Current Status
-
-This project is currently in active development. The `feature/rebuild-optimized` branch contains a completely rewritten version with improved architecture and bug fixes. For detailed development notes, please see:
-
-- [DEVELOPMENT.md](./DEVELOPMENT.md) - Comprehensive development documentation
-- [NOTES.md](./NOTES.md) - Latest development notes and decisions
-- [docs/INLINE_TEXT_EDITING.md](./docs/INLINE_TEXT_EDITING.md) - Details on the text editing implementation
-
-## Planned Features
-
-- Rich text formatting capabilities (bold, italic, etc.)
-- Drag-and-drop functionality for images and slides
-- Save/load functionality for presentations
-- Export to PDF/PowerPoint
-- Custom theming options
-- Presentation mode
-
-## Contribute
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Always create a feature branch from a stable version tag
+2. Implement and test changes locally
+3. Commit with descriptive messages following conventional commits
+4. Push changes and create pull requests to the appropriate branch
+5. After merging, tag significant releases with a new version number
 
 ## License
 
-This project is available under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
