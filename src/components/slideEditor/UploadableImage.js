@@ -111,6 +111,7 @@ function UploadableImage({
     setPreviewUrl(url);
 
     // Call the callback with the file and URL
+    // Always include the position in the image data
     if (onImageChange) {
       onImageChange({
         file,
@@ -118,7 +119,7 @@ function UploadableImage({
         name: file.name,
         size: file.size,
         type: file.type,
-        position
+        position // Always include the position here
       });
     }
   };
@@ -144,9 +145,12 @@ function UploadableImage({
       fileInputRef.current.value = '';
     }
     
-    // Call callback with null to indicate clearing
+    // Call callback with null and position to indicate clearing
     if (onImageChange) {
-      onImageChange(null);
+      onImageChange({
+        position,
+        url: null
+      });
     }
   };
 
