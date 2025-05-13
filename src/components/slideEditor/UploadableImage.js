@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, X, ImageIcon } from 'lucide-react';
+import ImageSelectModal from '../ImageSelectModal';
 
 /**
  * UploadableImage Component
  * 
- * An enhanced version of the ImageUpload component that supports direct click-to-upload
- * and drag-and-drop functionality for the new UI design.
+ * A component that represents an image slot in a slide with options to:
+ * - Select an image from the library via a modal
+ * - Upload a new image directly
+ * - Clear/remove a set image
  * 
  * @param {Object} props
  * @param {string} [props.initialImage] - URL of initial image to display
@@ -25,9 +28,8 @@ function UploadableImage({
 }) {
   const [previewUrl, setPreviewUrl] = useState(initialImage || null);
   const [isHovering, setIsHovering] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
-  const dropAreaRef = useRef(null);
 
   // Reset state if initialImage changes
   useEffect(() => {
@@ -47,56 +49,7 @@ function UploadableImage({
     };
   }, [previewUrl]);
   
-  // Set up drag and drop event listeners
-  useEffect(() => {
-    const dropArea = dropAreaRef.current;
-    if (!dropArea) return;
-    
-    const handleDragOver = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-    };
-    
-    const handleDragEnter = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-    };
-    
-    const handleDragLeave = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-    };
-    
-    const handleDrop = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-      
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        handleFile(files[0]);
-      }
-    };
-    
-    // Add event listeners
-    dropArea.addEventListener('dragover', handleDragOver);
-    dropArea.addEventListener('dragenter', handleDragEnter);
-    dropArea.addEventListener('dragleave', handleDragLeave);
-    dropArea.addEventListener('drop', handleDrop);
-    
-    // Clean up event listeners
-    return () => {
-      dropArea.removeEventListener('dragover', handleDragOver);
-      dropArea.removeEventListener('dragenter', handleDragEnter);
-      dropArea.removeEventListener('dragleave', handleDragLeave);
-      dropArea.removeEventListener('drop', handleDrop);
-    };
-  }, []);
-
-  // Process a file (from input or drag-and-drop)
+  // Process a file (from input)
   const handleFile = (file) => {
     if (!file) return;
 
@@ -154,9 +107,25 @@ function UploadableImage({
     }
   };
 
-  const triggerFileInput = () => {
+  const openFileDialog = (e) => {
+    e.stopPropagation();
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+  
+  const openImageSelectModal = (e) => {
+    e.stopPropagation();
+    setIsModalOpen(true);
+  };
+  
+  const handleSelectImage = (imageData) => {
+    // Update the preview URL
+    setPreviewUrl(imageData.url);
+    
+    // Call the callback with the selected image data
+    if (onImageChange) {
+      onImageChange(imageData);
     }
   };
 
@@ -166,67 +135,85 @@ function UploadableImage({
     { backgroundColor: '#f3f4f6' }; // Light gray default
 
   return (
-    <div 
-      ref={dropAreaRef}
-      className={`relative cursor-pointer group ${className} ${isDragging ? 'ring-2 ring-blue-500' : ''}`}
-      onClick={triggerFileInput}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      {previewUrl ? (
-        // Image preview
-        <div className="w-full h-full relative">
-          <img 
-            src={previewUrl} 
-            alt={alt}
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Hover overlay */}
-          <div className={`absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center transition-opacity duration-200 ${isHovering || isDragging ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="text-white text-center">
-              <Upload size={32} className="mx-auto mb-2" />
-              <p className="text-sm">Replace Image</p>
-              {isDragging && <p className="text-xs mt-1">Drop to Upload</p>}
+    <>
+      <div 
+        className={`relative cursor-default group ${className}`}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        {previewUrl ? (
+          // Image preview
+          <div className="w-full h-full relative">
+            <img 
+              src={previewUrl} 
+              alt={alt}
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Hover overlay with actions */}
+            <div className={`absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-200 ${isHovering ? 'opacity-100' : 'opacity-0'} flex flex-col justify-between`}>
+              <div className="flex justify-end p-2">
+                <button
+                  type="button"
+                  onClick={openImageSelectModal}
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded mr-2 transition-colors"
+                >
+                  Change Image
+                </button>
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           </div>
-          
-          {/* Remove button */}
-          <button
-            type="button"
-            onClick={clearImage}
-            className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors z-10"
-            title="Remove image"
+        ) : (
+          // Empty state with action buttons
+          <div 
+            className="w-full h-full flex items-center justify-center"
+            style={placeholderStyle}
           >
-            <X size={18} className="text-red-600" />
-          </button>
-        </div>
-      ) : (
-        // Placeholder when no image is selected
-        <div 
-          className="w-full h-full flex flex-col items-center justify-center"
-          style={placeholderStyle}
-        >
-          <div className={`text-center p-2 transition-opacity duration-200 ${isHovering || isDragging ? 'opacity-90' : 'opacity-60'}`}>
-            <ImageIcon size={24} className="mx-auto mb-1 text-gray-500" />
-            {isDragging ? (
-              <p className="text-xs text-gray-600 font-medium">Drop to Upload</p>
-            ) : (
-              <p className="text-xs text-gray-600 font-medium">Add Image</p>
-            )}
+            <div className="flex flex-col items-center gap-2 p-4">
+              <ImageIcon size={32} className="text-gray-400" />
+              <button
+                type="button"
+                onClick={openImageSelectModal}
+                className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded transition-colors"
+              >
+                Select from Library
+              </button>
+              <button
+                type="button"
+                onClick={openFileDialog}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-3 py-1 rounded transition-colors"
+              >
+                Upload New
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-      
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="hidden"
+        )}
+        
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </div>
+
+      {/* Image Selection Modal */}
+      <ImageSelectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSelectImage={handleSelectImage}
+        position={position}
       />
-    </div>
+    </>
   );
 }
 

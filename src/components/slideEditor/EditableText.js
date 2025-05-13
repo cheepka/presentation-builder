@@ -3,154 +3,114 @@ import React, { useState, useRef, useEffect } from 'react';
 /**
  * EditableText Component
  * 
- * A text component that supports direct inline editing.
- * Replaces modal-based text editing with in-place editing functionality.
+ * A component that renders as normal text but becomes editable when clicked.
  * 
  * @param {Object} props
- * @param {string} props.value - Current text value
- * @param {Function} props.onChange - Callback when text is changed (value) => void
- * @param {string} [props.placeholder='Click to edit'] - Placeholder text when empty
- * @param {string} [props.className=''] - Additional CSS classes
- * @param {string} [props.textClassName=''] - CSS classes for the text element
- * @param {string} [props.as='p'] - HTML element to render ('p', 'h1', 'h2', etc.)
- * @param {boolean} [props.multiline=false] - Whether to allow multiline editing (renders textarea instead of input)
- * @param {string} [props.textStyle=''] - Text styling (e.g., 'bold', 'italic')
+ * @param {string} props.value - The text content to display and edit
+ * @param {Function} props.onChange - Callback when text is changed
+ * @param {string} props.as - HTML tag to render (h1, h2, p, span, etc.)
+ * @param {string} [props.textClassName] - Classes to apply to the text
+ * @param {string} [props.textStyle] - Text style (normal, bold, italic)
+ * @param {string} [props.placeholder] - Placeholder text when value is empty
  */
-function EditableText({
-  value,
+function EditableText({ 
+  value = '',
   onChange,
-  placeholder = 'Click to edit',
-  className = '',
-  textClassName = '',
   as = 'p',
-  multiline = false,
-  textStyle = ''
+  textClassName = '',
+  textStyle = 'normal',
+  placeholder = 'Click to edit text'
 }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedText, setEditedText] = useState(value || '');
+  const [text, setText] = useState(value);
   const inputRef = useRef(null);
   
-  // Update local state when prop value changes
+  // Update text state when value prop changes
   useEffect(() => {
-    setEditedText(value || '');
+    setText(value);
   }, [value]);
   
-  // Focus input when editing starts
+  // Auto-focus when editing starts
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
-      
-      // Place cursor at the end of text
-      if (inputRef.current.type !== 'textarea') {
-        const length = inputRef.current.value.length;
-        inputRef.current.setSelectionRange(length, length);
-      }
-    }
-  }, [isEditing]);
-  
-  // Determine text style classes
-  let textStyleClasses = '';
-  switch (textStyle) {
-    case 'bold':
-      textStyleClasses = 'font-bold';
-      break;
-    case 'italic':
-      textStyleClasses = 'italic';
-      break;
-    case 'underline':
-      textStyleClasses = 'underline';
-      break;
-    default:
-      break;
-  }
-  
-  // Start editing
-  const handleClick = () => {
-    setIsEditing(true);
-  };
-  
-  // Finish editing and save changes
-  const handleBlur = () => {
-    setIsEditing(false);
-    if (onChange && editedText !== value) {
-      onChange(editedText);
-    }
-  };
-  
-  // Handle text changes
-  const handleChange = (e) => {
-    setEditedText(e.target.value);
-  };
-  
-  // Handle key press (Enter to save, Escape to cancel)
-  const handleKeyDown = (e) => {
-    if (!multiline && e.key === 'Enter') {
-      e.preventDefault();
-      inputRef.current.blur();
-    }
-    if (e.key === 'Escape') {
-      setEditedText(value || '');
-      setIsEditing(false);
-    }
-  };
-  
-  // Render text display when not editing
-  const renderText = () => {
-    const TextComponent = as;
-    const isEmpty = !value || value.trim() === '';
-    
-    const textContent = isEmpty ? (
-      <span className="text-gray-400">{placeholder}</span>
-    ) : (
-      value
-    );
-    
-    return (
-      <TextComponent 
-        className={`group cursor-pointer hover:bg-gray-100 hover:bg-opacity-50 px-1 -mx-1 rounded transition-colors ${textStyleClasses} ${textClassName}`}
-        onClick={handleClick}
-      >
-        {textContent}
-        <span className="ml-1 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
-      </TextComponent>
-    );
-  };
-  
-  // Render editing input/textarea
-  const renderInput = () => {
-    if (multiline) {
-      return (
-        <textarea
-          ref={inputRef}
-          value={editedText}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          className={`w-full px-2 py-1 border border-blue-400 rounded bg-white shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${textStyleClasses} ${textClassName}`}
-          autoComplete="off"
-          rows={3}
-        />
+      // Set cursor at end of text
+      inputRef.current.setSelectionRange(
+        inputRef.current.value.length,
+        inputRef.current.value.length
       );
     }
+  }, [isEditing]);
+
+  // Handle clicks outside to save changes
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (isEditing && inputRef.current && !inputRef.current.contains(event.target)) {
+        saveChanges();
+      }
+    }
     
-    return (
-      <input
-        ref={inputRef}
-        type="text"
-        value={editedText}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        className={`w-full px-2 py-1 border border-blue-400 rounded bg-white shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${textStyleClasses} ${textClassName}`}
-        autoComplete="off"
-      />
-    );
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isEditing, text]);
+
+  // Save changes and exit edit mode
+  const saveChanges = () => {
+    onChange(text);
+    setIsEditing(false);
   };
   
+  // Handle enter key to save
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      saveChanges();
+    } else if (event.key === 'Escape') {
+      setIsEditing(false);
+      setText(value); // Revert to original value
+    }
+  };
+  
+  // Determine font weight and style
+  let fontStyles = {};
+  if (textStyle === 'bold') fontStyles.fontWeight = 'bold';
+  if (textStyle === 'italic') fontStyles.fontStyle = 'italic';
+  
+  // Determine which HTML element to render
+  const Element = as;
+  
+  if (isEditing) {
+    // Show editable textarea
+    return (
+      <textarea
+        ref={inputRef}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={saveChanges}
+        style={{
+          width: '100%',
+          minHeight: '1.5em',
+          padding: '0.25em',
+          ...fontStyles
+        }}
+        className={`border border-blue-400 rounded ${textClassName}`}
+        placeholder={placeholder}
+      />
+    );
+  }
+  
+  // Show static text that becomes editable when clicked
   return (
-    <div className={`editable-text ${className}`}>
-      {isEditing ? renderInput() : renderText()}
-    </div>
+    <Element
+      onClick={() => setIsEditing(true)}
+      className={`cursor-text ${textClassName} hover:bg-blue-50 hover:ring-1 hover:ring-blue-200 hover:rounded transition-all duration-100`}
+      style={fontStyles}
+    >
+      {value || <span className="text-gray-400">{placeholder}</span>}
+    </Element>
   );
 }
 
