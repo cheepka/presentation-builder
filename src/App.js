@@ -59,28 +59,33 @@ function PresentationBuilderApp() {
   
   // Handle image changes
   const handleImageChange = (index, imageData) => {
+    const slide = slides[index];
+    const currentImages = slide.images || {};
+    
     if (!imageData) {
-      // Handle image removal
-      const slide = slides[index];
-      const updatedImages = { ...slide.images };
-      const position = 'main'; // Default position
+      // Handle image removal - if no position is specified, default to 'main'
+      const position = 'main';
+      const updatedImages = { ...currentImages };
       delete updatedImages[position];
       updateSlide(index, 'images', updatedImages);
       return;
     }
     
-    // Handle image update
+    // Handle image update - extract position from imageData or default to 'main'
     const position = imageData.position || 'main';
-    const slide = slides[index];
     
-    updateSlide(index, 'images', {
-      ...slide.images,
+    // Create a new images object with the updated image data
+    const updatedImages = {
+      ...currentImages,
       [position]: {
         url: imageData.url,
         name: imageData.name,
         type: imageData.type
       }
-    });
+    };
+    
+    // Update the slide with the new images object
+    updateSlide(index, 'images', updatedImages);
   };
   
   // Render appropriate slide component based on slide type
