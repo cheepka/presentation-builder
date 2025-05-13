@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, X, ImageIcon } from 'lucide-react';
+import { ImageIcon } from 'lucide-react';
 import ImageSelectModal from '../ImageSelectModal';
 
 /**
@@ -7,7 +7,6 @@ import ImageSelectModal from '../ImageSelectModal';
  * 
  * A component that represents an image slot in a slide with options to:
  * - Select an image from the library via a modal
- * - Upload a new image directly
  * - Clear/remove a set image
  * 
  * @param {Object} props
@@ -29,7 +28,6 @@ function UploadableImage({
   const [previewUrl, setPreviewUrl] = useState(initialImage || null);
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const fileInputRef = useRef(null);
 
   // Reset state if initialImage changes
   useEffect(() => {
@@ -49,39 +47,6 @@ function UploadableImage({
     };
   }, [previewUrl]);
   
-  // Process a file (from input)
-  const handleFile = (file) => {
-    if (!file) return;
-
-    // Validate file is an image
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
-      return;
-    }
-
-    // Create a preview URL for the selected file
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-
-    // Call the callback with the file and URL
-    // Always include the position in the image data
-    if (onImageChange) {
-      onImageChange({
-        file,
-        url,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        position // Always include the position here
-      });
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    handleFile(file);
-  };
-
   const clearImage = (e) => {
     e.stopPropagation();
     
@@ -93,24 +58,12 @@ function UploadableImage({
     // Reset to placeholder
     setPreviewUrl(null);
     
-    // Clear the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    
     // Call callback with null and position to indicate clearing
     if (onImageChange) {
       onImageChange({
         position,
         url: null
       });
-    }
-  };
-
-  const openFileDialog = (e) => {
-    e.stopPropagation();
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
     }
   };
   
@@ -171,39 +124,23 @@ function UploadableImage({
             </div>
           </div>
         ) : (
-          // Empty state with action buttons
+          // Empty state with select button - improved centering
           <div 
             className="w-full h-full flex items-center justify-center"
             style={placeholderStyle}
           >
-            <div className="flex flex-col items-center gap-2 p-4">
-              <ImageIcon size={32} className="text-gray-400" />
+            <div className="flex flex-col items-center justify-center gap-2 text-center">
+              <ImageIcon size={32} className="text-gray-400 mx-auto" />
               <button
                 type="button"
                 onClick={openImageSelectModal}
-                className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded transition-colors"
+                className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded transition-colors mx-auto"
               >
                 Select from Library
-              </button>
-              <button
-                type="button"
-                onClick={openFileDialog}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-3 py-1 rounded transition-colors"
-              >
-                Upload New
               </button>
             </div>
           </div>
         )}
-        
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
       </div>
 
       {/* Image Selection Modal */}

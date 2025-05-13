@@ -15,7 +15,7 @@ import FourGridSlide from './slideTypes/FourGridSlide';
 import SplitVerticalSlide from './slideTypes/SplitVerticalSlide';
 
 /**
- * Component for displaying and editing the current slide
+ * Component for displaying and editing all slides in a scrollable view
  * @returns {React.ReactElement} The SlideEditor component
  */
 const SlideEditor = () => {
@@ -34,11 +34,9 @@ const SlideEditor = () => {
     );
   }
   
-  const currentSlide = slides[currentSlideIndex];
-  
   // Handle slide updates
-  const handleSlideUpdate = (field, value) => {
-    const updatedSlide = { ...currentSlide };
+  const handleSlideUpdate = (index, field, value) => {
+    const updatedSlide = { ...slides[index] };
     
     if (field.includes('.')) {
       // Handle nested fields like "content.0"
@@ -51,15 +49,15 @@ const SlideEditor = () => {
     dispatch({
       type: ACTIONS.UPDATE_SLIDE,
       payload: {
-        index: currentSlideIndex,
+        index: index,
         slide: updatedSlide
       }
     });
   };
   
   // Handle image changes
-  const handleImageChange = (imageData) => {
-    const updatedSlide = { ...currentSlide };
+  const handleImageChange = (index, imageData) => {
+    const updatedSlide = { ...slides[index] };
     const currentImages = updatedSlide.images || {};
     
     // If no image data, remove the image from the position
@@ -88,35 +86,43 @@ const SlideEditor = () => {
     dispatch({
       type: ACTIONS.UPDATE_SLIDE,
       payload: {
-        index: currentSlideIndex,
+        index: index,
         slide: updatedSlide
       }
     });
   };
   
+  // Set the current slide for detailed editing
+  const setCurrentSlide = (index) => {
+    dispatch({
+      type: 'set_current_slide',
+      payload: index
+    });
+  };
+  
   // Render slide content based on template type
-  const renderSlideContent = () => {
-    switch (currentSlide.type) {
+  const renderSlideContent = (slide, index) => {
+    switch (slide.type) {
       case TEMPLATE_TYPES.TITLE:
-        return <TitleSlide slide={currentSlide} onUpdate={handleSlideUpdate} />;
+        return <TitleSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} />;
         
       case TEMPLATE_TYPES.FULL_IMAGE:
-        return <FullImageSlide slide={currentSlide} onUpdate={handleSlideUpdate} onImageChange={handleImageChange} />;
+        return <FullImageSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} onImageChange={(imageData) => handleImageChange(index, imageData)} />;
         
       case TEMPLATE_TYPES.TEXT_RIGHT_IMAGE:
-        return <RightImageSlide slide={currentSlide} onUpdate={handleSlideUpdate} onImageChange={handleImageChange} />;
+        return <RightImageSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} onImageChange={(imageData) => handleImageChange(index, imageData)} />;
         
       case TEMPLATE_TYPES.TEXT_LEFT_IMAGE:
-        return <LeftImageSlide slide={currentSlide} onUpdate={handleSlideUpdate} onImageChange={handleImageChange} />;
+        return <LeftImageSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} onImageChange={(imageData) => handleImageChange(index, imageData)} />;
         
       case TEMPLATE_TYPES.IMAGE_GRID:
-        return <ImageGridSlide slide={currentSlide} onUpdate={handleSlideUpdate} onImageChange={handleImageChange} />;
+        return <ImageGridSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} onImageChange={(imageData) => handleImageChange(index, imageData)} />;
         
       case TEMPLATE_TYPES.FOUR_GRID:
-        return <FourGridSlide slide={currentSlide} onUpdate={handleSlideUpdate} onImageChange={handleImageChange} />;
+        return <FourGridSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} onImageChange={(imageData) => handleImageChange(index, imageData)} />;
         
       case TEMPLATE_TYPES.SPLIT_VERTICAL:
-        return <SplitVerticalSlide slide={currentSlide} onUpdate={handleSlideUpdate} onImageChange={handleImageChange} />;
+        return <SplitVerticalSlide slide={slide} onUpdate={(field, value) => handleSlideUpdate(index, field, value)} onImageChange={(imageData) => handleImageChange(index, imageData)} />;
         
       default:
         return (
@@ -127,10 +133,25 @@ const SlideEditor = () => {
     }
   };
   
-  // Slide container with 16:9 aspect ratio
+  // Render all slides in a scrollable container
   return (
-    <div className="relative bg-white shadow-lg" style={{ width: '960px', height: '540px' }}>
-      {renderSlideContent()}
+    <div className="w-full h-full overflow-y-auto p-8 flex flex-col items-center">
+      {slides.map((slide, index) => (
+        <div key={slide.id} className="mb-16">
+          <div className="text-gray-600 text-sm mb-2 ml-2">
+            Slide {index + 1}
+          </div>
+          <div 
+            className={`relative bg-white shadow-lg ${index === currentSlideIndex ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'}`}
+            style={{ width: '960px', height: '540px' }}
+            onClick={() => setCurrentSlide(index)}
+          >
+            {renderSlideContent(slide, index)}
+          </div>
+        </div>
+      ))}
+      {/* Add some padding at the bottom for better scrolling experience */}
+      <div className="h-20"></div>
     </div>
   );
 };

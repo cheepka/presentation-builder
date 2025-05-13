@@ -20,11 +20,9 @@ const MainLayout = ({ leftPanel, centerPanel, rightPanel }) => {
         {leftPanel}
       </div>
       
-      {/* Center Panel - Active Slide Editor */}
-      <div className="flex-1 overflow-y-auto bg-gray-100 flex items-center justify-center">
-        <div className="relative">
-          {centerPanel}
-        </div>
+      {/* Center Panel - Slide Editor with scrollable vertical layout */}
+      <div className="flex-1 bg-gray-100 overflow-y-auto">
+        {centerPanel}
       </div>
       
       {/* Right Panel - Tools & Libraries */}
