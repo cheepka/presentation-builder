@@ -5,13 +5,14 @@ import React from 'react';
 import { usePresentation } from '../context/PresentationContext';
 import { TEMPLATE_TYPES } from '../utils/slideTemplates';
 import { getPlaceholderImage } from '../utils/imageUtils';
+import EditableText from './EditableText';
 
 /**
  * Component for displaying and editing the current slide
  * @returns {React.ReactElement} The SlideEditor component
  */
 const SlideEditor = () => {
-  const { state, dispatch } = usePresentation();
+  const { state } = usePresentation();
   const { slides, currentSlideIndex } = state;
   
   // If there are no slides, display empty state
@@ -28,15 +29,26 @@ const SlideEditor = () => {
   
   const currentSlide = slides[currentSlideIndex];
   
-  // Placeholder rendering for different slide types
-  // This will be expanded in future implementations with actual editing capabilities
+  // Render slide content based on template type
   const renderSlideContent = () => {
     switch (currentSlide.type) {
       case TEMPLATE_TYPES.TITLE:
         return (
           <div className="flex flex-col items-center justify-center h-full text-center p-12">
-            <h1 className="text-4xl font-bold mb-4">{currentSlide.title}</h1>
-            <h2 className="text-xl text-gray-600">{currentSlide.subtitle}</h2>
+            <EditableText
+              text={currentSlide.title}
+              slideId={currentSlide.id}
+              field="title"
+              className="text-4xl font-bold mb-4"
+              as="h1"
+            />
+            <EditableText
+              text={currentSlide.subtitle}
+              slideId={currentSlide.id}
+              field="subtitle"
+              className="text-xl text-gray-600"
+              as="h2"
+            />
           </div>
         );
         
@@ -59,7 +71,13 @@ const SlideEditor = () => {
               )}
             </div>
             <div className="absolute inset-x-0 bottom-0 bg-black bg-opacity-50 p-4 text-white">
-              <h2 className="text-2xl font-semibold">{currentSlide.title}</h2>
+              <EditableText
+                text={currentSlide.title}
+                slideId={currentSlide.id}
+                field="title"
+                className="text-2xl font-semibold text-white"
+                as="h2"
+              />
             </div>
           </div>
         );
@@ -68,10 +86,24 @@ const SlideEditor = () => {
         return (
           <div className="flex h-full">
             <div className="w-2/3 p-8">
-              <h2 className="text-3xl font-semibold mb-4">{currentSlide.title}</h2>
+              <EditableText
+                text={currentSlide.title}
+                slideId={currentSlide.id}
+                field="title"
+                className="text-3xl font-semibold mb-4"
+                as="h2"
+              />
               <ul className="space-y-2 list-disc pl-6">
                 {currentSlide.content.map((item, index) => (
-                  <li key={index} className="text-lg">{item}</li>
+                  <li key={index} className="text-lg">
+                    <EditableText
+                      text={item}
+                      slideId={currentSlide.id}
+                      field="content"
+                      index={index}
+                      className="inline"
+                    />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -112,10 +144,24 @@ const SlideEditor = () => {
               )}
             </div>
             <div className="w-2/3 p-8">
-              <h2 className="text-3xl font-semibold mb-4">{currentSlide.title}</h2>
+              <EditableText
+                text={currentSlide.title}
+                slideId={currentSlide.id}
+                field="title"
+                className="text-3xl font-semibold mb-4"
+                as="h2"
+              />
               <ul className="space-y-2 list-disc pl-6">
                 {currentSlide.content.map((item, index) => (
-                  <li key={index} className="text-lg">{item}</li>
+                  <li key={index} className="text-lg">
+                    <EditableText
+                      text={item}
+                      slideId={currentSlide.id}
+                      field="content"
+                      index={index}
+                      className="inline"
+                    />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -126,7 +172,13 @@ const SlideEditor = () => {
         return (
           <div className="flex flex-col h-full">
             <div className="p-4 text-center">
-              <h2 className="text-3xl font-semibold">{currentSlide.title}</h2>
+              <EditableText
+                text={currentSlide.title}
+                slideId={currentSlide.id}
+                field="title"
+                className="text-3xl font-semibold"
+                as="h2"
+              />
             </div>
             <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-2 p-4">
               {currentSlide.images.map((image, index) => (
@@ -150,7 +202,13 @@ const SlideEditor = () => {
         return (
           <div className="flex flex-col h-full">
             <div className="p-4 text-center">
-              <h2 className="text-3xl font-semibold">{currentSlide.title}</h2>
+              <EditableText
+                text={currentSlide.title}
+                slideId={currentSlide.id}
+                field="title"
+                className="text-3xl font-semibold"
+                as="h2"
+              />
             </div>
             <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-4 p-6">
               {currentSlide.images.map((image, index) => (
@@ -174,10 +232,24 @@ const SlideEditor = () => {
         return (
           <div className="flex h-full">
             <div className="w-2/3 p-8">
-              <h2 className="text-3xl font-semibold mb-4">{currentSlide.title}</h2>
+              <EditableText
+                text={currentSlide.title}
+                slideId={currentSlide.id}
+                field="title"
+                className="text-3xl font-semibold mb-4"
+                as="h2"
+              />
               <ul className="space-y-2 list-disc pl-6">
                 {currentSlide.content.map((item, index) => (
-                  <li key={index} className="text-lg">{item}</li>
+                  <li key={index} className="text-lg">
+                    <EditableText
+                      text={item}
+                      slideId={currentSlide.id}
+                      field="content"
+                      index={index}
+                      className="inline"
+                    />
+                  </li>
                 ))}
               </ul>
             </div>
