@@ -2,10 +2,14 @@
 // Provides global state management for the presentation
 
 import { createContext, useContext, useReducer } from 'react';
+import { createSlideFromTemplate, TEMPLATE_TYPES } from '../utils/slideTemplates';
 
 // Initial state
 const initialState = {
-  slides: [],
+  slides: [
+    // Start with a default title slide
+    createSlideFromTemplate(TEMPLATE_TYPES.TITLE)
+  ],
   currentSlideIndex: 0,
   imageLibrary: [],
 };
