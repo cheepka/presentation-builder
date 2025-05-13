@@ -1,119 +1,79 @@
-/**
- * Image utility functions for the Presentation Builder
- */
+// imageUtils.js
+// Utility functions for handling images in the presentation builder
 
 /**
- * Optimize an image file for use in presentations
- * Compresses the image and converts it to an appropriate format
- * 
- * @param {File} file - The image file to process
- * @param {Object} options - Options for optimization
- * @param {number} [options.maxWidth=1920] - Maximum width in pixels
- * @param {number} [options.maxHeight=1080] - Maximum height in pixels
- * @param {number} [options.quality=0.8] - JPEG quality (0.0 to 1.0)
- * @returns {Promise<{ blob: Blob, url: string, width: number, height: number }>} - Optimized image data
+ * Converts a File object to a base64 string
+ * @param {File} file - The image file to convert
+ * @returns {Promise<string>} - Promise resolving to the base64 string
  */
-export const optimizeImage = async (file, options = {}) => {
-  const {
-    maxWidth = 1920,
-    maxHeight = 1080,
-    quality = 0.8
-  } = options;
-  
+export function fileToBase64(file) {
   return new Promise((resolve, reject) => {
-    // Create image element to load the file
-    const img = new Image();
-    img.onload = () => {
-      // Create canvas for resizing
-      const canvas = document.createElement('canvas');
-      
-      // Calculate new dimensions while maintaining aspect ratio
-      let width = img.width;
-      let height = img.height;
-      
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width;
-        width = maxWidth;
-      }
-      
-      if (height > maxHeight) {
-        width = (width * maxHeight) / height;
-        height = maxHeight;
-      }
-      
-      // Set canvas dimensions
-      canvas.width = width;
-      canvas.height = height;
-      
-      // Draw image on canvas
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Convert to Blob
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('Failed to create image blob'));
-          return;
-        }
-        
-        // Create object URL for the blob
-        const url = URL.createObjectURL(blob);
-        
-        resolve({
-          blob,
-          url,
-          width,
-          height
-        });
-      }, 'image/jpeg', quality);
-    };
-    
-    img.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-    
-    // Load image from file
-    img.src = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
   });
-};
+}
 
 /**
- * Cleanup image URLs to prevent memory leaks
- * 
- * @param {Object} images - Object with image data
+ * Creates an image object for storage in the image library
+ * @param {File} file - The image file
+ * @returns {Promise<Object>} - Promise resolving to the image object
  */
-export const cleanupImageUrls = (images) => {
-  if (!images) return;
-  
-  Object.values(images).forEach(image => {
-    if (image && image.url && image.url.startsWith('blob:')) {
-      URL.revokeObjectURL(image.url);
-    }
-  });
-};
+export async function createImageObject(file) {
+  try {
+    const base64 = await fileToBase64(file);
+    return {
+      id: generateImageId(),
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      dateAdded: new Date().toISOString(),
+      src: base64,
+    };
+  } catch (error) {
+    console.error('Error creating image object:', error);
+    throw error;
+  }
+}
 
 /**
- * Generate a placeholder background based on position
- * 
- * @param {string|number} position - Position identifier (e.g., 'grid1', 'top', etc.)
- * @returns {Object} - CSS style object
+ * Generates a placeholder image URL with specified dimensions
+ * @param {number} width - Width of the placeholder image
+ * @param {number} height - Height of the placeholder image
+ * @param {string} text - Optional text to display on the placeholder
+ * @returns {string} - Placeholder image URL
  */
-export const getPlaceholderStyle = (position) => {
-  // Extract digits from positions like 'grid1' or use a default
-  const positionIndex = typeof position === 'string' ? 
-    parseInt(position.replace(/[^0-9]/g, '') || '0', 10) : 
-    0;
-  
-  // Calculate a shade of gray, alternating between lighter and darker
-  const baseValue = 50 + (positionIndex * 5) % 20;
-  
-  return {
-    backgroundColor: `rgb(${baseValue}, ${baseValue}, ${baseValue})`
-  };
-};
+export function getPlaceholderImage(width = 400, height = 300, text = '') {
+  const displayText = text || `${width}x${height}`;
+  return `https://place-hold.it/${width}x${height}/e0e0e0/666666.png&text=${encodeURIComponent(displayText)}`;
+}
 
-export default {
-  optimizeImage,
-  cleanupImageUrls,
-  getPlaceholderStyle
-};
+/**
+ * Validates that a file is an accepted image type
+ * @param {File} file - File to validate
+ * @returns {boolean} - Whether the file is a valid image
+ */
+export function isValidImageFile(file) {
+  const acceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  return acceptedTypes.includes(file.type);
+}
+
+/**
+ * Validates image file size
+ * @param {File} file - File to validate
+ * @param {number} maxSizeMB - Maximum size in MB
+ * @returns {boolean} - Whether the file size is valid
+ */
+export function isValidImageSize(file, maxSizeMB = 5) {
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  return file.size <= maxSizeBytes;
+}
+
+/**
+ * Generates a unique ID for an image
+ * @returns {string} - Unique ID
+ */
+function generateImageId() {
+  return 'img_' + Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
