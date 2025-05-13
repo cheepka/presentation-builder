@@ -166,18 +166,11 @@ function PresentationBuilder() {
   const saveEdits = () => {
     if (!editingSlide) return;
     
-    const newSlides = slides.map(slide => {
-      if (slide.uniqueId === editingSlide.uniqueId) {
-        // Create a new slide object with proper nested object merging
-        return {
-          ...slide, // First spread all base properties from the original slide
-          ...editForm, // Then spread the edited form values (overwriting base properties)
-          // For 'images', we need to explicitly merge at the image level
-          images: { ...slide.images, ...editForm.images }
-        };
-      }
-      return slide;
-    });
+    const newSlides = slides.map(slide => 
+      slide.uniqueId === editingSlide.uniqueId 
+        ? {...slide, ...editForm} 
+        : slide
+    );
     
     setSlides(newSlides);
     setEditingSlide(null);
