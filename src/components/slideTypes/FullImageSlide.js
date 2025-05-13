@@ -31,6 +31,8 @@ function FullImageSlide({ slide, onUpdate, onImageChange }) {
           alt="Background image"
           placeholderColor="#4a4a4a"
         />
+        {/* Darkening overlay for better text readability */}
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
       
       {/* Content overlay */}
