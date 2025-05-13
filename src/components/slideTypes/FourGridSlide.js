@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import EditableText from '../slideEditor/EditableText';
 import UploadableImage from '../slideEditor/UploadableImage';
 import { getPlaceholderColor } from '../../utils/slideTemplates';
@@ -20,13 +20,17 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
     onUpdate(field, value);
   };
   
-  // Handle image changes
-  const handleImageChange = (position, imageData) => {
-    onImageChange({
+  // Handle image changes for a specific grid position
+  const handleGridImageChange = useCallback((position, imageData) => {
+    // Make sure we're preserving all other images
+    const updatedImageData = imageData ? {
       ...imageData,
-      position
-    });
-  };
+      position // Ensure position is set correctly
+    } : null;
+    
+    // Call the parent's onImageChange with the correct position
+    onImageChange(updatedImageData);
+  }, [onImageChange]);
   
   return (
     <div className="w-full h-full">
@@ -34,7 +38,7 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
         <div className="relative">
           <UploadableImage
             initialImage={slide.images?.grid1?.url}
-            onImageChange={(imageData) => handleImageChange('grid1', imageData)}
+            onImageChange={(imageData) => handleGridImageChange('grid1', imageData)}
             position="grid1"
             className="w-full h-full"
             alt="Top left image"
@@ -44,7 +48,7 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
         <div className="relative">
           <UploadableImage
             initialImage={slide.images?.grid2?.url}
-            onImageChange={(imageData) => handleImageChange('grid2', imageData)}
+            onImageChange={(imageData) => handleGridImageChange('grid2', imageData)}
             position="grid2"
             className="w-full h-full"
             alt="Top right image"
@@ -54,7 +58,7 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
         <div className="relative">
           <UploadableImage
             initialImage={slide.images?.grid3?.url}
-            onImageChange={(imageData) => handleImageChange('grid3', imageData)}
+            onImageChange={(imageData) => handleGridImageChange('grid3', imageData)}
             position="grid3"
             className="w-full h-full"
             alt="Bottom left image"
@@ -64,7 +68,7 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
         <div className="relative">
           <UploadableImage
             initialImage={slide.images?.grid4?.url}
-            onImageChange={(imageData) => handleImageChange('grid4', imageData)}
+            onImageChange={(imageData) => handleGridImageChange('grid4', imageData)}
             position="grid4"
             className="w-full h-full"
             alt="Bottom right image"
@@ -76,7 +80,7 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
       {/* Title overlay - only shown if showTitle is true */}
       {slide.showTitle !== false && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="bg-gray-900 bg-opacity-70 px-6 py-3">
+          <div className="bg-gray-900 bg-opacity-70 px-6 py-3 z-10">
             <EditableText
               value={slide.title}
               onChange={(value) => handleTextChange('title', value)}
