@@ -5,7 +5,7 @@ import { Upload, X, ImageIcon } from 'lucide-react';
  * UploadableImage Component
  * 
  * An enhanced version of the ImageUpload component that supports direct click-to-upload
- * functionality for the new UI design.
+ * and drag-and-drop functionality for the new UI design.
  * 
  * @param {Object} props
  * @param {string} [props.initialImage] - URL of initial image to display
@@ -25,7 +25,9 @@ function UploadableImage({
 }) {
   const [previewUrl, setPreviewUrl] = useState(initialImage || null);
   const [isHovering, setIsHovering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+  const dropAreaRef = useRef(null);
 
   // Reset state if initialImage changes
   useEffect(() => {
@@ -44,9 +46,58 @@ function UploadableImage({
       }
     };
   }, [previewUrl]);
+  
+  // Set up drag and drop event listeners
+  useEffect(() => {
+    const dropArea = dropAreaRef.current;
+    if (!dropArea) return;
+    
+    const handleDragOver = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+    };
+    
+    const handleDragEnter = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+    };
+    
+    const handleDragLeave = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+    };
+    
+    const handleDrop = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleFile(files[0]);
+      }
+    };
+    
+    // Add event listeners
+    dropArea.addEventListener('dragover', handleDragOver);
+    dropArea.addEventListener('dragenter', handleDragEnter);
+    dropArea.addEventListener('dragleave', handleDragLeave);
+    dropArea.addEventListener('drop', handleDrop);
+    
+    // Clean up event listeners
+    return () => {
+      dropArea.removeEventListener('dragover', handleDragOver);
+      dropArea.removeEventListener('dragenter', handleDragEnter);
+      dropArea.removeEventListener('dragleave', handleDragLeave);
+      dropArea.removeEventListener('drop', handleDrop);
+    };
+  }, []);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  // Process a file (from input or drag-and-drop)
+  const handleFile = (file) => {
     if (!file) return;
 
     // Validate file is an image
@@ -70,6 +121,11 @@ function UploadableImage({
         position
       });
     }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    handleFile(file);
   };
 
   const clearImage = (e) => {
@@ -107,7 +163,8 @@ function UploadableImage({
 
   return (
     <div 
-      className={`relative cursor-pointer group ${className}`}
+      ref={dropAreaRef}
+      className={`relative cursor-pointer group ${className} ${isDragging ? 'ring-2 ring-blue-500' : ''}`}
       onClick={triggerFileInput}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -122,10 +179,11 @@ function UploadableImage({
           />
           
           {/* Hover overlay */}
-          <div className={`absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center transition-opacity duration-200 ${isHovering ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center transition-opacity duration-200 ${isHovering || isDragging ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-white text-center">
               <Upload size={32} className="mx-auto mb-2" />
               <p className="text-sm">Replace Image</p>
+              {isDragging && <p className="text-xs mt-1">Drop to Upload</p>}
             </div>
           </div>
           
@@ -145,10 +203,16 @@ function UploadableImage({
           className="w-full h-full flex flex-col items-center justify-center"
           style={placeholderStyle}
         >
-          <div className={`text-center p-4 transition-opacity duration-200 ${isHovering ? 'opacity-90' : 'opacity-60'}`}>
+          <div className={`text-center p-4 transition-opacity duration-200 ${isHovering || isDragging ? 'opacity-90' : 'opacity-60'}`}>
             <ImageIcon size={32} className="mx-auto mb-3 text-gray-500" />
-            <p className="text-sm text-gray-600 font-medium">Click to add image</p>
-            <p className="text-xs text-gray-500 mt-1">or drag and drop</p>
+            {isDragging ? (
+              <p className="text-sm text-gray-600 font-medium">Drop to Upload</p>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600 font-medium">Click to add image</p>
+                <p className="text-xs text-gray-500 mt-1">or drag and drop</p>
+              </>
+            )}
           </div>
         </div>
       )}
