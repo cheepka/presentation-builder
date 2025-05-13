@@ -63,21 +63,24 @@ function PresentationBuilderApp() {
       // Handle image removal
       const slide = slides[index];
       const updatedImages = { ...slide.images };
-      delete updatedImages[imageData?.position || 'main'];
+      const position = 'main'; // Default position
+      delete updatedImages[position];
       updateSlide(index, 'images', updatedImages);
-    } else {
-      // Handle image update
-      const position = imageData.position || 'main';
-      const slide = slides[index];
-      updateSlide(index, 'images', {
-        ...slide.images,
-        [position]: {
-          url: imageData.url,
-          name: imageData.name,
-          type: imageData.type
-        }
-      });
+      return;
     }
+    
+    // Handle image update
+    const position = imageData.position || 'main';
+    const slide = slides[index];
+    
+    updateSlide(index, 'images', {
+      ...slide.images,
+      [position]: {
+        url: imageData.url,
+        name: imageData.name,
+        type: imageData.type
+      }
+    });
   };
   
   // Render appropriate slide component based on slide type
