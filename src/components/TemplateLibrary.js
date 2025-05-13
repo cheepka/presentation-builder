@@ -2,9 +2,9 @@
 // Component for displaying and selecting slide templates
 
 import React from 'react';
-import { usePresentation } from '../../context/PresentationContext';
-import { ACTIONS } from '../../context/PresentationContext';
-import { slideTemplates, createSlideFromTemplate } from '../../utils/slideTemplates';
+import { usePresentation } from '../context/PresentationContext';
+import { ACTIONS } from '../context/PresentationContext';
+import { slideTemplates, createSlideFromTemplate } from '../utils/slideTemplates';
 
 /**
  * Component for displaying and selecting from available slide templates
