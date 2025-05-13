@@ -1,5 +1,5 @@
 // EditableText.js
-// A reusable component for editing text inline
+// A reusable component for editing text inline - see docs/INLINE_TEXT_EDITING.md for details
 
 import React, { useState, useRef, useEffect } from 'react';
 import { usePresentation } from '../context/PresentationContext';
