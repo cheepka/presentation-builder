@@ -28,11 +28,6 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
     });
   };
   
-  // Toggle title visibility
-  const toggleTitleVisibility = () => {
-    onUpdate('showTitle', !slide.showTitle);
-  };
-  
   return (
     <div className="w-full h-full">
       <div className="grid grid-cols-2 grid-rows-2 gap-1 h-full">
@@ -92,21 +87,6 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
           </div>
         </div>
       )}
-      
-      {/* Title visibility toggle */}
-      <div className="absolute bottom-4 right-4">
-        <button
-          onClick={toggleTitleVisibility}
-          className={`p-2 rounded ${
-            slide.showTitle !== false 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-600 text-gray-300'
-          }`}
-          title={slide.showTitle !== false ? 'Hide title' : 'Show title'}
-        >
-          {slide.showTitle !== false ? 'Hide Title' : 'Show Title'}
-        </button>
-      </div>
     </div>
   );
 }
