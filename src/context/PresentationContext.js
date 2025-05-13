@@ -1,208 +1,125 @@
-import React, { createContext, useState, useContext } from 'react';
+// PresentationContext.js
+// Provides global state management for the presentation
+
+import { createContext, useContext, useReducer } from 'react';
+
+// Initial state
+const initialState = {
+  slides: [],
+  currentSlideIndex: 0,
+  imageLibrary: [],
+};
+
+// Action types
+export const ACTIONS = {
+  ADD_SLIDE: 'add_slide',
+  UPDATE_SLIDE: 'update_slide',
+  DELETE_SLIDE: 'delete_slide',
+  REORDER_SLIDE: 'reorder_slide',
+  SET_CURRENT_SLIDE: 'set_current_slide',
+  ADD_IMAGE: 'add_image',
+  REMOVE_IMAGE: 'remove_image',
+};
+
+// Reducer function
+function presentationReducer(state, action) {
+  switch (action.type) {
+    case ACTIONS.ADD_SLIDE:
+      return {
+        ...state,
+        slides: [...state.slides, action.payload],
+        currentSlideIndex: state.slides.length, // Set the new slide as current
+      };
+      
+    case ACTIONS.UPDATE_SLIDE:
+      return {
+        ...state,
+        slides: state.slides.map((slide, index) => 
+          index === action.payload.index ? action.payload.slide : slide
+        ),
+      };
+      
+    case ACTIONS.DELETE_SLIDE:
+      // Handle new current slide index after deletion
+      let newIndex = state.currentSlideIndex;
+      if (state.slides.length > 1) {
+        if (action.payload === state.currentSlideIndex) {
+          // If deleting current slide, move to previous (or next if it's the first slide)
+          newIndex = action.payload === 0 ? 0 : action.payload - 1;
+        } else if (action.payload < state.currentSlideIndex) {
+          // If deleting a slide before the current, adjust the index
+          newIndex = state.currentSlideIndex - 1;
+        }
+      } else {
+        newIndex = 0;
+      }
+
+      return {
+        ...state,
+        slides: state.slides.filter((_, index) => index !== action.payload),
+        currentSlideIndex: newIndex,
+      };
+      
+    case ACTIONS.REORDER_SLIDE:
+      const { fromIndex, toIndex } = action.payload;
+      const reorderedSlides = [...state.slides];
+      const [movedSlide] = reorderedSlides.splice(fromIndex, 1);
+      reorderedSlides.splice(toIndex, 0, movedSlide);
+      
+      // Adjust currentSlideIndex if the current slide was moved or if the order affects its position
+      let adjustedCurrentIndex = state.currentSlideIndex;
+      if (state.currentSlideIndex === fromIndex) {
+        // Current slide was moved
+        adjustedCurrentIndex = toIndex;
+      } else if (
+        (fromIndex < state.currentSlideIndex && toIndex >= state.currentSlideIndex) ||
+        (fromIndex > state.currentSlideIndex && toIndex <= state.currentSlideIndex)
+      ) {
+        // Movement affects current slide index
+        adjustedCurrentIndex = 
+          fromIndex < state.currentSlideIndex 
+            ? state.currentSlideIndex - 1 
+            : state.currentSlideIndex + 1;
+      }
+      
+      return {
+        ...state,
+        slides: reorderedSlides,
+        currentSlideIndex: adjustedCurrentIndex,
+      };
+      
+    case ACTIONS.SET_CURRENT_SLIDE:
+      return {
+        ...state,
+        currentSlideIndex: action.payload,
+      };
+      
+    case ACTIONS.ADD_IMAGE:
+      return {
+        ...state,
+        imageLibrary: [...state.imageLibrary, action.payload],
+      };
+      
+    case ACTIONS.REMOVE_IMAGE:
+      return {
+        ...state,
+        imageLibrary: state.imageLibrary.filter(img => img.id !== action.payload),
+      };
+      
+    default:
+      return state;
+  }
+}
 
 // Create context
 const PresentationContext = createContext();
 
-/**
- * PresentationProvider Component
- * 
- * A context provider for global state management in the Presentation Builder.
- * Handles slides state, editing state, and presentation metadata.
- * 
- * @param {Object} props
- * @param {React.ReactNode} props.children - Child components
- */
+// Provider component
 export function PresentationProvider({ children }) {
-  // State for slides
-  const [slides, setSlides] = useState([]);
-  
-  // State for current presentation
-  const [currentPresentation, setCurrentPresentation] = useState({ 
-    name: 'Untitled', 
-    id: Date.now() 
-  });
-  
-  // State for editing
-  const [editingState, setEditingState] = useState({
-    activeElement: null,  // id of the currently edited element
-    activeType: null,     // type of editing (text, image, etc.)
-    activeSlideIndex: null // index of slide being edited
-  });
-  
-  // Add a new slide from template
-  const addSlide = (template) => {
-    const newSlide = {
-      uniqueId: Date.now().toString(),
-      type: template.type,
-      title: template.defaultTitle || 'New Slide',
-      content: template.defaultContent || '',
-      images: {},
-      // Add additional template-specific properties
-      ...template.defaultProps
-    };
-    
-    setSlides([...slides, newSlide]);
-  };
-  
-  // Remove a slide
-  const removeSlide = (index) => {
-    const newSlides = [...slides];
-    newSlides.splice(index, 1);
-    setSlides(newSlides);
-    
-    // If the active slide was deleted or was after the deleted slide, update activeSlideIndex
-    if (editingState.activeSlideIndex !== null) {
-      if (editingState.activeSlideIndex === index) {
-        // The active slide was deleted
-        setEditingState({
-          ...editingState,
-          activeSlideIndex: null,
-          activeElement: null,
-          activeType: null
-        });
-      } else if (editingState.activeSlideIndex > index) {
-        // Active slide was after the deleted slide
-        setEditingState({
-          ...editingState,
-          activeSlideIndex: editingState.activeSlideIndex - 1
-        });
-      }
-    }
-  };
-  
-  // Update a slide
-  const updateSlide = (index, field, value) => {
-    const newSlides = [...slides];
-    
-    // If field is an object, we're updating multiple fields
-    if (typeof field === 'object') {
-      newSlides[index] = {
-        ...newSlides[index],
-        ...field
-      };
-    } else {
-      // Update a single field
-      newSlides[index] = {
-        ...newSlides[index],
-        [field]: value
-      };
-    }
-    
-    setSlides(newSlides);
-  };
-  
-  // Move a slide
-  const moveSlide = (index, direction) => {
-    const newSlides = [...slides];
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    
-    if (newIndex < 0 || newIndex >= newSlides.length) return;
-    
-    const slideToMove = newSlides[index];
-    newSlides.splice(index, 1);
-    newSlides.splice(newIndex, 0, slideToMove);
-    
-    setSlides(newSlides);
-    
-    // Update activeSlideIndex if the active slide was moved
-    if (editingState.activeSlideIndex === index) {
-      setEditingState({
-        ...editingState,
-        activeSlideIndex: newIndex
-      });
-    } else if (editingState.activeSlideIndex === newIndex) {
-      // If the active slide was the one being swapped with
-      setEditingState({
-        ...editingState,
-        activeSlideIndex: index
-      });
-    }
-  };
-  
-  // Duplicate a slide
-  const duplicateSlide = (index) => {
-    const slideToClone = slides[index];
-    const newSlide = {
-      ...JSON.parse(JSON.stringify(slideToClone)), // Deep clone
-      uniqueId: Date.now().toString() // New unique ID
-    };
-    
-    const newSlides = [...slides];
-    newSlides.splice(index + 1, 0, newSlide);
-    setSlides(newSlides);
-  };
-  
-  // Start editing an element
-  const startEditing = (slideIndex, elementId, type) => {
-    setEditingState({
-      activeSlideIndex: slideIndex,
-      activeElement: elementId,
-      activeType: type
-    });
-  };
-  
-  // Finish editing
-  const finishEditing = (value) => {
-    const { activeSlideIndex, activeElement, activeType } = editingState;
-    
-    if (activeSlideIndex !== null && activeElement !== null) {
-      // For text elements, update the corresponding field
-      if (activeType === 'text') {
-        updateSlide(activeSlideIndex, activeElement, value);
-      }
-      // Other element types can be handled similarly
-    }
-    
-    // Reset editing state
-    setEditingState({
-      activeSlideIndex: activeSlideIndex, // Keep active slide
-      activeElement: null,
-      activeType: null
-    });
-  };
-  
-  // Cancel editing
-  const cancelEditing = () => {
-    setEditingState({
-      ...editingState,
-      activeElement: null,
-      activeType: null
-    });
-  };
-  
-  // Set active slide (without editing)
-  const setActiveSlide = (index) => {
-    setEditingState({
-      ...editingState,
-      activeSlideIndex: index
-    });
-  };
+  const [state, dispatch] = useReducer(presentationReducer, initialState);
   
   return (
-    <PresentationContext.Provider 
-      value={{
-        // State
-        slides,
-        currentPresentation,
-        editingState,
-        
-        // Slide management
-        addSlide,
-        removeSlide,
-        updateSlide,
-        moveSlide,
-        duplicateSlide,
-        
-        // Editing
-        startEditing,
-        finishEditing,
-        cancelEditing,
-        setActiveSlide,
-        
-        // Presentation management
-        setCurrentPresentation
-      }}
-    >
+    <PresentationContext.Provider value={{ state, dispatch }}>
       {children}
     </PresentationContext.Provider>
   );
@@ -210,7 +127,9 @@ export function PresentationProvider({ children }) {
 
 // Custom hook for using the context
 export function usePresentation() {
-  return useContext(PresentationContext);
+  const context = useContext(PresentationContext);
+  if (!context) {
+    throw new Error('usePresentation must be used within a PresentationProvider');
+  }
+  return context;
 }
-
-export default PresentationContext;
