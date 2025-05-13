@@ -26,12 +26,17 @@ As of May 13, 2025, we have implemented a complete refactoring of the applicatio
   - Seven different slide layouts (Title, Full Image, Text with Left/Right Image, etc.)
   - Visual representation of templates
   - Easy template selection
+- **Inline Text Editing**:
+  - Click-to-edit functionality for all text elements
+  - Support for titles, subtitles, and bullet points
+  - Keyboard shortcuts for saving (Enter) and canceling (Escape)
+  - Visual feedback for editable elements
+  - See `docs/INLINE_TEXT_EDITING.md` for detailed documentation
 
 ### Pending Features
-- **Interactive Editing**:
-  - Inline text editing for slide content
+- **Advanced Editing**:
+  - Rich text formatting for text content
   - Direct image manipulation and replacement
-  - Rich text formatting
 - **Drag and Drop**:
   - Full drag-and-drop support for slides in the navigator
   - Drag-and-drop from image library to slide content
@@ -64,6 +69,7 @@ The application follows a component-based architecture with careful separation o
 
 - Center Panel:
   - `SlideEditor.js`: Displays and handles editing of the current slide
+  - `EditableText.js`: Provides inline text editing functionality
 
 - Right Panel:
   - `RightPanel.js`: Organizes tools into accordion sections
@@ -75,14 +81,13 @@ The application follows a component-based architecture with careful separation o
 - `imageUtils.js`: Provides image handling functionality
 
 ## Known Issues
-The current implementation is a basic framework. It does not yet include the full editing capabilities that will be needed for a complete presentation builder.
+The current implementation is a working framework with basic editing capabilities. It still lacks more advanced features like rich text formatting and drag-and-drop.
 
 ## Next Development Steps
-1. Implement inline text editing for slides
-2. Add drag-and-drop functionality for images
-3. Develop slide content editing capabilities
-4. Implement save/load functionality
-5. Add presentation export features
+1. Add drag-and-drop functionality for images
+2. Develop rich text formatting capabilities
+3. Implement save/load functionality
+4. Add presentation export features
 
 ## Development Guidelines
 - Use functional components with React hooks
@@ -99,11 +104,13 @@ The current implementation is a basic framework. It does not yet include the ful
 - Test image uploads with various file types
 - Ensure consistent behavior across browsers
 - Verify that slide content is properly maintained when navigating
+- Test text editing functionality across all slide types
 
 ## File Structure
 ```
 src/
 ├── components/             # React components
+│   ├── EditableText.js     # Text editing component
 │   ├── Header.js           # Application header
 │   ├── ImageLibrary.js     # Image upload and management
 │   ├── RightPanel.js       # Right panel with accordions
@@ -122,3 +129,7 @@ src/
 ├── index.css               # Global styles
 └── index.js                # Application entry point
 ```
+
+## Documentation
+Additional documentation is available in the `docs/` directory:
+- `INLINE_TEXT_EDITING.md`: Details about the text editing implementation
