@@ -63,9 +63,10 @@ function PresentationBuilderApp() {
       return; // Skip if no image data provided
     }
     
-    // Get current slide and its images
-    const slide = slides[index];
-    const currentImages = {...(slide.images || {})};
+    // Get the most current slide to avoid state sync issues
+    // This ensures we're working with the latest state of all images
+    const currentSlide = [...slides][index];
+    const currentImages = {...(currentSlide.images || {})};
     
     if (imageData.url === null) {
       // This is a request to remove an image
@@ -79,15 +80,18 @@ function PresentationBuilderApp() {
     // Get the position from the image data
     const position = imageData.position || 'main';
     
-    // Update just that position, preserving all other images
-    updateSlide(index, 'images', {
+    // Create a new images object with all existing images plus the new one
+    const updatedImages = {
       ...currentImages,
       [position]: {
         url: imageData.url,
         name: imageData.name,
         type: imageData.type
       }
-    });
+    };
+    
+    // Update the slide with the new images object
+    updateSlide(index, 'images', updatedImages);
   };
   
   // Render appropriate slide component based on slide type
