@@ -2,9 +2,9 @@
 // Left panel component showing slide thumbnails and providing navigation
 
 import React from 'react';
-import { usePresentation } from '../../context/PresentationContext';
+import { usePresentation } from '../context/PresentationContext';
 import { Plus, Trash2, Copy, ArrowUp, ArrowDown } from 'lucide-react';
-import { TEMPLATE_TYPES } from '../../utils/slideTemplates';
+import { TEMPLATE_TYPES } from '../utils/slideTemplates';
 
 /**
  * Component for displaying slide thumbnails and navigation in the left panel
