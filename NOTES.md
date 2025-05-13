@@ -1,5 +1,40 @@
 # Development Notes
 
+## May 13, 2025 - Slide Template Improvements
+
+### Issue Identified
+Identified issues with image grid templates (9-image and 4-image grids) where:
+- Images were not fitting properly within the 9x16 slide dimensions
+- External image placeholders were creating overflow problems
+- Title placement was taking up too much space
+- Grid cell proportions were inconsistent
+
+### Improvements Made
+1. **Better Image Placeholder Handling**
+   - Removed external placeholder images that were causing sizing issues
+   - Implemented custom styled placeholders with minimal text
+   - Added proper aspect ratio handling for grid cells
+
+2. **Improved Layout for Grid Templates**
+   - Adjusted padding and gaps to maximize usable space
+   - Fixed image overflow problems
+   - Ensured all content fits within slide boundaries
+
+3. **Enhanced Title Handling**
+   - Made titles optional with a toggle button
+   - Moved titles to the bottom of slide for more screen space
+   - Added semi-transparent background for better readability
+   - Reduced font size for better proportions
+
+4. **Data Structure Improvements**
+   - Updated data structure to use keyed objects for easier image reference
+   - Added support for toggling title visibility
+
+### Next Steps
+- Implement drag-and-drop for images between library and slides
+- Add text formatting options
+- Consider adding more template variations
+
 ## May 13, 2025 - Inline Text Editing Implementation
 
 ### Feature Added
@@ -50,6 +85,7 @@ The basic framework is in place with:
 - Template selection system
 - Main editing interface
 - Inline text editing for all text elements
+- Improved slide templates with optimized layouts
 
 ### Next Steps
 1. **Implement Additional Content Editing Features**
@@ -107,6 +143,7 @@ The current implementation should be tested carefully for:
 - Template selection and correct slide creation
 - Navigation between slides
 - Text editing functionality across all slide types
+- Image grid layouts at different screen sizes
 
 ## Performance Considerations
 

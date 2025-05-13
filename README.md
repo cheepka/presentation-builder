@@ -26,10 +26,12 @@ A web-based application for creating customizable presentations with various sli
   - Keyboard shortcuts (Enter to save, Escape to cancel)
   - Visual feedback during editing
 
-- Image library system:
-  - Upload and store images
-  - Reuse images across multiple slides
-  - Manage your image collection
+- Image handling:
+  - Upload images to slides
+  - Modern placeholder interface for empty image slots
+  - Aspect ratio-optimized grid layouts
+  - Optional titles with toggle visibility
+  - Proper image containment within slide dimensions
 
 - Professional, intuitive interface:
   - Three-panel layout inspired by desktop presentation software

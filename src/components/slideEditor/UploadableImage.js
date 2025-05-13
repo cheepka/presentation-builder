@@ -207,15 +207,12 @@ function UploadableImage({
           className="w-full h-full flex flex-col items-center justify-center"
           style={placeholderStyle}
         >
-          <div className={`text-center p-4 transition-opacity duration-200 ${isHovering || isDragging ? 'opacity-90' : 'opacity-60'}`}>
-            <ImageIcon size={32} className="mx-auto mb-3 text-gray-500" />
+          <div className={`text-center p-2 transition-opacity duration-200 ${isHovering || isDragging ? 'opacity-90' : 'opacity-60'}`}>
+            <ImageIcon size={24} className="mx-auto mb-1 text-gray-500" />
             {isDragging ? (
-              <p className="text-sm text-gray-600 font-medium">Drop to Upload</p>
+              <p className="text-xs text-gray-600 font-medium">Drop to Upload</p>
             ) : (
-              <>
-                <p className="text-sm text-gray-600 font-medium">Click to add image</p>
-                <p className="text-xs text-gray-500 mt-1">or drag and drop</p>
-              </>
+              <p className="text-xs text-gray-600 font-medium">Add Image</p>
             )}
           </div>
         </div>

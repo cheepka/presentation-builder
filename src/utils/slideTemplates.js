@@ -12,6 +12,24 @@ export const TEMPLATE_TYPES = {
   SPLIT_VERTICAL: 'split-vertical',
 };
 
+// Helper function to get a placeholder color for image grids
+export function getPlaceholderColor(position) {
+  const colors = {
+    grid1: '#f0f4f8',
+    grid2: '#e1e8f0',
+    grid3: '#d2ddea',
+    grid4: '#c3d2e4',
+    grid5: '#b4c7de',
+    grid6: '#a5bcd8',
+    grid7: '#96b1d2',
+    grid8: '#87a6cc',
+    grid9: '#789bc6',
+    default: '#f0f4f8'
+  };
+  
+  return colors[position] || colors.default;
+}
+
 // Template definitions
 export const slideTemplates = [
   {
@@ -69,21 +87,39 @@ export const slideTemplates = [
     id: TEMPLATE_TYPES.IMAGE_GRID,
     name: '9-Image Grid',
     description: 'Grid of 9 images',
-    createSlide: () => ({
-      type: TEMPLATE_TYPES.IMAGE_GRID,
-      title: 'Image Collection',
-      images: Array(9).fill(null),
-    })
+    createSlide: () => {
+      // Create an object with grid1 through grid9 keys
+      const images = {};
+      for (let i = 1; i <= 9; i++) {
+        images[`grid${i}`] = null;
+      }
+      
+      return {
+        type: TEMPLATE_TYPES.IMAGE_GRID,
+        title: 'Image Collection',
+        images,
+        showTitle: true
+      };
+    }
   },
   {
     id: TEMPLATE_TYPES.FOUR_GRID,
     name: '4-Image Grid',
     description: 'Grid of 4 images',
-    createSlide: () => ({
-      type: TEMPLATE_TYPES.FOUR_GRID,
-      title: 'Key Visual Points',
-      images: Array(4).fill(null),
-    })
+    createSlide: () => {
+      // Create an object with grid1 through grid4 keys
+      const images = {};
+      for (let i = 1; i <= 4; i++) {
+        images[`grid${i}`] = null;
+      }
+      
+      return {
+        type: TEMPLATE_TYPES.FOUR_GRID,
+        title: 'Key Visual Points',
+        images,
+        showTitle: true
+      };
+    }
   },
   {
     id: TEMPLATE_TYPES.SPLIT_VERTICAL,

@@ -45,8 +45,9 @@ export async function createImageObject(file) {
  * @returns {string} - Placeholder image URL
  */
 export function getPlaceholderImage(width = 400, height = 300, text = '') {
-  const displayText = text || `${width}x${height}`;
-  return `https://place-hold.it/${width}x${height}/e0e0e0/666666.png&text=${encodeURIComponent(displayText)}`;
+  // Return null to avoid using external placeholders that don't fit properly
+  // The UploadableImage component will use styled divs instead
+  return null;
 }
 
 /**

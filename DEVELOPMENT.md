@@ -26,6 +26,9 @@ As of May 13, 2025, we have implemented a complete refactoring of the applicatio
   - Seven different slide layouts (Title, Full Image, Text with Left/Right Image, etc.)
   - Visual representation of templates
   - Easy template selection
+  - Optimized image grid layouts with proper aspect ratios
+  - Toggle-able title overlays
+  - See `docs/SLIDE_TEMPLATE_IMPROVEMENTS.md` for detailed documentation
 - **Inline Text Editing**:
   - Click-to-edit functionality for all text elements
   - Support for titles, subtitles, and bullet points
@@ -133,3 +136,4 @@ src/
 ## Documentation
 Additional documentation is available in the `docs/` directory:
 - `INLINE_TEXT_EDITING.md`: Details about the text editing implementation
+- `SLIDE_TEMPLATE_IMPROVEMENTS.md`: Documentation of image grid and template improvements

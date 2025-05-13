@@ -170,61 +170,71 @@ const SlideEditor = () => {
         
       case TEMPLATE_TYPES.IMAGE_GRID:
         return (
-          <div className="flex flex-col h-full">
-            <div className="p-4 text-center">
-              <EditableText
-                text={currentSlide.title}
-                slideId={currentSlide.id}
-                field="title"
-                className="text-3xl font-semibold"
-                as="h2"
-              />
+          <div className="relative w-full h-full">
+            <div className="grid grid-cols-3 grid-rows-3 gap-1 h-full">
+              {Array(9).fill(0).map((_, i) => {
+                const gridPosition = `grid${i+1}`;
+                const image = currentSlide.images?.[gridPosition];
+                return (
+                  <div key={i} className="bg-gray-200 relative overflow-hidden">
+                    {image ? (
+                      <img src={image.url} alt={`Grid ${i + 1}`} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <span className="text-xs text-gray-400">Image {i + 1}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-2 p-4">
-              {currentSlide.images.map((image, index) => (
-                <div key={index} className="bg-gray-200 flex items-center justify-center">
-                  {image ? (
-                    <img src={image.src} alt={`Grid ${index + 1}`} className="w-full h-full object-cover" />
-                  ) : (
-                    <img 
-                      src={getPlaceholderImage(300, 300, `Image ${index + 1}`)} 
-                      alt={`Placeholder ${index + 1}`}
-                      className="w-full h-full object-cover" 
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
+            
+            {currentSlide.showTitle !== false && (
+              <div className="absolute bottom-0 inset-x-0 bg-black bg-opacity-50 p-2 text-white">
+                <EditableText
+                  text={currentSlide.title}
+                  slideId={currentSlide.id}
+                  field="title"
+                  className="text-xl font-semibold text-center"
+                  as="h2"
+                />
+              </div>
+            )}
           </div>
         );
         
       case TEMPLATE_TYPES.FOUR_GRID:
         return (
-          <div className="flex flex-col h-full">
-            <div className="p-4 text-center">
-              <EditableText
-                text={currentSlide.title}
-                slideId={currentSlide.id}
-                field="title"
-                className="text-3xl font-semibold"
-                as="h2"
-              />
+          <div className="relative w-full h-full">
+            <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full p-1">
+              {Array(4).fill(0).map((_, i) => {
+                const gridPosition = `grid${i+1}`;
+                const image = currentSlide.images?.[gridPosition];
+                return (
+                  <div key={i} className="bg-gray-200 relative overflow-hidden">
+                    {image ? (
+                      <img src={image.url} alt={`Grid ${i + 1}`} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <span className="text-xs text-gray-400">Image {i + 1}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-4 p-6">
-              {currentSlide.images.map((image, index) => (
-                <div key={index} className="bg-gray-200 flex items-center justify-center">
-                  {image ? (
-                    <img src={image.src} alt={`Grid ${index + 1}`} className="w-full h-full object-cover" />
-                  ) : (
-                    <img 
-                      src={getPlaceholderImage(400, 300, `Image ${index + 1}`)} 
-                      alt={`Placeholder ${index + 1}`}
-                      className="w-full h-full object-cover" 
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
+            
+            {currentSlide.showTitle !== false && (
+              <div className="absolute bottom-0 inset-x-0 bg-black bg-opacity-50 p-2 text-white">
+                <EditableText
+                  text={currentSlide.title}
+                  slideId={currentSlide.id}
+                  field="title"
+                  className="text-xl font-semibold text-center"
+                  as="h2"
+                />
+              </div>
+            )}
           </div>
         );
         
