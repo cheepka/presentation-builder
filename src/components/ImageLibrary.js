@@ -2,10 +2,10 @@
 // Component for displaying and managing uploaded images
 
 import React, { useRef } from 'react';
-import { usePresentation } from '../../context/PresentationContext';
+import { usePresentation } from '../context/PresentationContext';
 import { Upload, X } from 'lucide-react';
-import { ACTIONS } from '../../context/PresentationContext';
-import { createImageObject, isValidImageFile, isValidImageSize } from '../../utils/imageUtils';
+import { ACTIONS } from '../context/PresentationContext';
+import { createImageObject, isValidImageFile, isValidImageSize } from '../utils/imageUtils';
 
 /**
  * Component for displaying and managing the image library
