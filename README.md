@@ -13,15 +13,14 @@ A web-based application for creating customizable presentations with various sli
   - Text + Dual Image (Split Vertical)
   - 4-Image Grid
 
-- Direct inline editing of all slide content:
-  - Edit text directly on slides
-  - Upload custom images with drag-and-drop support
-  - Manage bullet points
-
-- Slide Management:
+- Direct slide management:
   - Add, duplicate, and remove slides
   - Reorder slides with move up/down controls
   - View presentation preview
+
+- Image management:
+  - Upload images to a central library
+  - Reuse images across multiple slides
 
 ## Project Structure
 
@@ -31,17 +30,44 @@ The application follows a modular component architecture:
 src/
 ├── components/              # React components
 │   ├── Header.js            # Application header
-│   ├── ImageUpload.js       # Image upload functionality
-│   ├── layout/              # Layout components
-│   ├── slideEditor/         # Components for editing slides
-│   ├── slideLibrary/        # Slide template library
-│   └── slideTypes/          # Specific slide type implementations
+│   ├── ImageLibrary.js      # Image upload and library management
+│   ├── RightPanel.js        # Right panel with accordions
+│   ├── SlideEditor.js       # Slide editing component
+│   ├── SlideNavigator.js    # Left panel slide navigation
+│   ├── TemplateLibrary.js   # Slide template selection
+│   └── layout/              # Layout components
+│       ├── Accordion.js     # Collapsible accordion component
+│       └── MainLayout.js    # Three-panel layout structure
 ├── context/                 # Context providers
 │   └── PresentationContext.js  # Global state management
 ├── utils/                   # Utility functions
+│   ├── imageUtils.js        # Image handling utilities
 │   └── slideTemplates.js    # Slide template definitions
 └── App.js                   # Main application component
 ```
+
+## Development Status
+
+### Current Implementation (feature/rebuild-optimized)
+
+- ✅ Three-panel layout similar to professional presentation software
+- ✅ Slide navigator in left panel (PowerPoint/Keynote style)
+- ✅ Slide editor with basic template rendering in center panel
+- ✅ Right panel with accordion menus for:
+  - Image Library - Upload and manage images
+  - Template Library - Select different slide layouts
+- ✅ Basic slide management (add, delete, reorder, duplicate)
+- ✅ Central state management with React Context API
+- ✅ Responsive design with Tailwind CSS
+
+### Planned Enhancements
+
+- [ ] Interactive text editing directly on slides
+- [ ] Drag and drop for images from library to slides
+- [ ] More customization options for each slide type
+- [ ] Save/load functionality for presentations
+- [ ] Export options (PDF, images)
+- [ ] Presentation mode for slideshows
 
 ## Technology Stack
 
@@ -68,17 +94,22 @@ src/
    cd presentation-builder
    ```
 
-3. Install dependencies:
+3. Checkout the optimized rebuild branch:
+   ```
+   git checkout feature/rebuild-optimized
+   ```
+
+4. Install dependencies:
    ```
    npm install
    ```
 
-4. Start the development server:
+5. Start the development server:
    ```
    npm start
    ```
 
-5. Open your browser and navigate to `http://localhost:3000`
+6. Open your browser and navigate to `http://localhost:3000`
 
 ### Development Workflow
 
@@ -90,25 +121,3 @@ src/
 2. Implement your changes
 
 3. Submit a pull request for review
-
-## Future Enhancements
-
-- Save/load functionality for presentations
-- Export to PDF/PowerPoint
-- Additional slide templates
-- Drag and drop slide reordering
-- Custom theming options
-
-## Contribute
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is available under the MIT License.
