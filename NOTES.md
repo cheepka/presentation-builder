@@ -1,5 +1,18 @@
 # Development Notes
 
+## May 13, 2025 - Inline Text Editing Implementation
+
+### Feature Added
+Implemented inline text editing functionality for all text elements in slides. This feature allows users to click on any text element and edit it directly on the slide, providing a more intuitive editing experience.
+
+### Implementation Details
+- Created a new EditableText component that handles both display and edit modes
+- Updated SlideEditor to use EditableText for all text elements
+- Added keyboard shortcuts for saving (Enter) and canceling (Escape) edits
+- Implemented visual feedback for editable elements
+
+See `docs/INLINE_TEXT_EDITING.md` for comprehensive documentation.
+
 ## May 13, 2025 - Complete Rewrite and Optimization
 
 ### Issue Identified
@@ -36,12 +49,12 @@ The basic framework is in place with:
 - Image library functionality
 - Template selection system
 - Main editing interface
+- Inline text editing for all text elements
 
 ### Next Steps
-1. **Implement Content Editing Features**
-   - Add inline text editing functionality
-   - Implement proper image placement/replacement
-   - Add text formatting controls
+1. **Implement Additional Content Editing Features**
+   - Add text formatting controls (bold, italic, etc.)
+   - Implement proper image placement/replacement with drag-and-drop
 
 2. **Add Full Drag-and-Drop Support**
    - Enable drag-and-drop for slides in the navigator
@@ -61,7 +74,6 @@ The basic framework is in place with:
    - Limited error handling for file operations
 
 2. **Limited Editing Capabilities**
-   - The slide editor currently only displays content but doesn't allow inline editing
    - No rich text formatting support yet
    - Placeholder handling needs improvement
 
@@ -94,6 +106,7 @@ The current implementation should be tested carefully for:
 - Image upload functionality with various file types and sizes
 - Template selection and correct slide creation
 - Navigation between slides
+- Text editing functionality across all slide types
 
 ## Performance Considerations
 
