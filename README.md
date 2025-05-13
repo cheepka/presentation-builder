@@ -20,6 +20,12 @@ A web-based application for creating customizable presentations with various sli
   - Reorder slides using up/down controls
   - Navigate between slides with simple clicks
 
+- Text editing capabilities:
+  - Click-to-edit functionality for all text elements
+  - Support for titles, subtitles, and bullet points
+  - Keyboard shortcuts (Enter to save, Escape to cancel)
+  - Visual feedback during editing
+
 - Image library system:
   - Upload and store images
   - Reuse images across multiple slides
@@ -37,6 +43,7 @@ The application follows a modular component architecture:
 ```
 src/
 ├── components/             # React components
+│   ├── EditableText.js     # Inline text editing component
 │   ├── Header.js           # Application header
 │   ├── ImageLibrary.js     # Image upload and management
 │   ├── RightPanel.js       # Right panel with accordions
@@ -114,10 +121,11 @@ This project is currently in active development. The `feature/rebuild-optimized`
 
 - [DEVELOPMENT.md](./DEVELOPMENT.md) - Comprehensive development documentation
 - [NOTES.md](./NOTES.md) - Latest development notes and decisions
+- [docs/INLINE_TEXT_EDITING.md](./docs/INLINE_TEXT_EDITING.md) - Details on the text editing implementation
 
 ## Planned Features
 
-- Inline text editing for all slide content
+- Rich text formatting capabilities (bold, italic, etc.)
 - Drag-and-drop functionality for images and slides
 - Save/load functionality for presentations
 - Export to PDF/PowerPoint
