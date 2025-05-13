@@ -38,24 +38,29 @@ function EditableSlide({
   
   // Handle image change
   const handleImageChange = (imageData) => {
+    const currentImages = slide.images || {};
+    
     if (!imageData) {
-      // Handle image removal
-      const updatedImages = { ...slide.images };
-      delete updatedImages[imageData?.position || 'main'];
+      // Handle image removal - default to 'main' position if none specified
+      const position = 'main';
+      const updatedImages = { ...currentImages };
+      delete updatedImages[position];
       handleUpdate('images', updatedImages);
       return;
     }
     
     // Handle image update
     const position = imageData.position || 'main';
-    handleUpdate('images', {
-      ...slide.images,
+    const updatedImages = {
+      ...currentImages,
       [position]: {
         url: imageData.url,
         name: imageData.name,
         type: imageData.type
       }
-    });
+    };
+    
+    handleUpdate('images', updatedImages);
   };
   
   // Prepare props to pass down to children
