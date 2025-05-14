@@ -1,7 +1,7 @@
 // SlideNavigator.js
 // Left panel component showing slide thumbnails and providing navigation
 
-import React from 'react';
+import React, { useState } from 'react';
 import { usePresentation } from '../context/PresentationContext';
 import { Plus, Trash2, Copy, ArrowUp, ArrowDown } from 'lucide-react';
 import { TEMPLATE_TYPES } from '../utils/slideTemplates';
@@ -13,6 +13,8 @@ import { TEMPLATE_TYPES } from '../utils/slideTemplates';
 const SlideNavigator = () => {
   const { state, dispatch } = usePresentation();
   const { slides, currentSlideIndex } = state;
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState(null);
 
   const addNewSlide = () => {
     // For now, add a default title slide
@@ -71,6 +73,87 @@ const SlideNavigator = () => {
     });
   };
 
+  // Handle starting the drag
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.dropEffect = 'move';
+    setDraggedIndex(index);
+    
+    // Set empty data to prevent default behavior
+    e.dataTransfer.setData('text/plain', '');
+  };
+
+  // Handle dragging over a drop zone
+  const handleDragOverDropZone = (e, index) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTargetIndex(index);
+  };
+
+  // Handle dropping the slide
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (draggedIndex === null) return;
+    
+    // Calculate the actual target index
+    let targetIndex = dropIndex;
+    if (dropIndex > draggedIndex) {
+      targetIndex -= 1; // Adjust for the fact that we're moving the slide down
+    }
+    
+    // Don't reorder if dropping in the same position
+    if (targetIndex === draggedIndex) {
+      setDraggedIndex(null);
+      setDropTargetIndex(null);
+      return;
+    }
+
+    // First dispatch the reorder
+    dispatch({
+      type: 'reorder_slide',
+      payload: { fromIndex: draggedIndex, toIndex: targetIndex }
+    });
+
+    // If we're moving the current slide, update the current slide index after animation
+    if (currentSlideIndex === draggedIndex) {
+      // Wait for the slide reordering animation to complete
+      setTimeout(() => {
+        dispatch({
+          type: 'set_current_slide',
+          payload: targetIndex
+        });
+      }, 200); // Slightly longer than our CSS transition to ensure smooth animation
+    } else if (
+      // If we're moving a slide between the current slide and the start
+      (draggedIndex < currentSlideIndex && targetIndex >= currentSlideIndex) ||
+      (draggedIndex > currentSlideIndex && targetIndex <= currentSlideIndex)
+    ) {
+      // Adjust the current slide index based on the direction of movement
+      const newCurrentIndex = draggedIndex < currentSlideIndex ? 
+        currentSlideIndex - 1 : 
+        currentSlideIndex + 1;
+      
+      setTimeout(() => {
+        dispatch({
+          type: 'set_current_slide',
+          payload: newCurrentIndex
+        });
+      }, 200);
+    }
+    
+    setDraggedIndex(null);
+    setDropTargetIndex(null);
+  };
+
+  // Handle drag end (cleanup if dropped outside)
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDropTargetIndex(null);
+  };
+
   // Helper function to render a basic slide thumbnail based on type
   const renderSlideThumbnail = (slide) => {
     switch (slide.type) {
@@ -101,89 +184,184 @@ const SlideNavigator = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-800">Slides</h2>
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800 transition-colors duration-200">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-medium text-gray-800 dark:text-white">Slides</h2>
       </div>
       
-      {/* Slide list */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {slides.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>No slides yet</p>
-            <p className="text-sm">Click the + button to add your first slide</p>
+      {/* Slide list container */}
+      <div 
+        className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-200"
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          
+          // Find the closest drop zone based on mouse position
+          const container = e.currentTarget;
+          const containerRect = container.getBoundingClientRect();
+          const mouseY = e.clientY - containerRect.top;
+          
+          // Get all slide elements
+          const slides = container.querySelectorAll('.slide-item');
+          let closestDropZoneIndex = 0;
+          
+          // Find the closest drop zone by comparing with slide positions
+          for (let i = 0; i < slides.length; i++) {
+            const slideRect = slides[i].getBoundingClientRect();
+            const slideMiddle = slideRect.top + (slideRect.height / 2) - containerRect.top;
+            
+            if (mouseY > slideMiddle) {
+              closestDropZoneIndex = i + 1;
+            }
+          }
+          
+          setDropTargetIndex(closestDropZoneIndex);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (draggedIndex === null || dropTargetIndex === null) return;
+          
+          // Calculate the actual target index
+          let targetIndex = dropTargetIndex;
+          if (dropTargetIndex > draggedIndex) {
+            targetIndex -= 1;
+          }
+          
+          // Don't reorder if dropping in the same position
+          if (targetIndex === draggedIndex) {
+            setDraggedIndex(null);
+            setDropTargetIndex(null);
+            return;
+          }
+          
+          dispatch({
+            type: 'reorder_slide',
+            payload: { fromIndex: draggedIndex, toIndex: targetIndex }
+          });
+          
+          setDraggedIndex(null);
+          setDropTargetIndex(null);
+        }}
+      >
+        <div className="flex flex-col relative">
+          {/* First drop zone */}
+          <div 
+            className={`
+              transition-all duration-200 ease-out
+              ${dropTargetIndex === 0 && draggedIndex !== 0
+                ? 'h-24 bg-blue-50 border border-blue-200 rounded-lg my-2' 
+                : 'h-2 my-0'
+              }
+            `}
+          >
+            {dropTargetIndex === 0 && draggedIndex !== 0 && (
+              <div className="h-full flex items-center justify-center">
+                <div className="w-full border border-dashed border-blue-200 rounded m-2"></div>
+              </div>
+            )}
           </div>
-        ) : (
-          slides.map((slide, index) => (
+          
+          {slides.map((slide, index) => (
+            <React.Fragment key={slide.id}>
             <div 
-              key={slide.id} 
-              className={`relative group border-2 ${
-                index === currentSlideIndex ? 'border-blue-500' : 'border-gray-200'
-              } rounded-lg bg-white overflow-hidden`}
+                className={`slide-item relative group border-2 ${
+                index === currentSlideIndex ? 'border-blue-500' : 'border-gray-200 dark:border-gray-700'
+                } rounded-lg bg-white overflow-hidden h-24 flex-shrink-0 select-none
+                  ${draggedIndex === index ? 'opacity-20' : ''}`}
+                draggable="true"
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnd={handleDragEnd}
             >
               {/* Slide number */}
-              <div className="absolute top-1 left-1 bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs text-gray-600">
+              <div className="absolute top-1 left-1 bg-gray-100 dark:bg-gray-700 rounded-full w-5 h-5 flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 select-none">
                 {index + 1}
               </div>
               
               {/* Slide thumbnail */}
               <div 
-                className="h-24 cursor-pointer"
+                  className="h-full w-full select-none"
                 onClick={() => setCurrentSlide(index)}
               >
                 {renderSlideThumbnail(slide)}
               </div>
               
-              {/* Control buttons (visible on hover) */}
-              <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 flex bg-white bg-opacity-80 rounded-tl-md border-t border-l border-gray-200">
-                {index > 0 && (
-                  <button 
-                    className="p-1 text-gray-700 hover:text-blue-500"
-                    onClick={() => moveSlide(index, 'up')}
-                    title="Move up"
-                  >
-                    <ArrowUp size={14} />
-                  </button>
-                )}
-                
-                {index < slides.length - 1 && (
-                  <button 
-                    className="p-1 text-gray-700 hover:text-blue-500"
-                    onClick={() => moveSlide(index, 'down')}
-                    title="Move down"
-                  >
-                    <ArrowDown size={14} />
-                  </button>
-                )}
-                
-                <button 
-                  className="p-1 text-gray-700 hover:text-blue-500"
-                  onClick={() => duplicateSlide(index)}
-                  title="Duplicate slide"
-                >
-                  <Copy size={14} />
-                </button>
-                
-                <button 
-                  className="p-1 text-gray-700 hover:text-red-500"
-                  onClick={() => deleteSlide(index)}
+                {/* Action buttons */}
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 flex items-center space-x-1">
+                <button
+                  className="p-1 text-blue-500 hover:text-red-500 dark:text-gray-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSlide(index);
+                  }}
                   title="Delete slide"
                 >
                   <Trash2 size={14} />
                 </button>
+                <button
+                  className="p-1 text-blue-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    duplicateSlide(index);
+                  }}
+                  title="Duplicate slide"
+                >
+                  <Copy size={14} />
+                </button>
+                <button
+                  className="p-1 text-blue-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveSlide(index, 'up');
+                  }}
+                  title="Move up"
+                  disabled={index === 0}
+                >
+                  <ArrowUp size={14} />
+                </button>
+                <button
+                  className="p-1 text-blue-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveSlide(index, 'down');
+                  }}
+                  title="Move down"
+                  disabled={index === slides.length - 1}
+                >
+                  <ArrowDown size={14} />
+                </button>
               </div>
             </div>
-          ))
-        )}
+              
+              {/* Drop zone after each slide */}
+              <div 
+                className={`
+                  transition-all duration-200 ease-out
+                  ${dropTargetIndex === index + 1 && draggedIndex !== index && draggedIndex !== index + 1
+                    ? 'h-24 bg-blue-50 border border-blue-200 rounded-lg my-2' 
+                    : 'h-2 my-0'
+                  }
+                `}
+              >
+                {dropTargetIndex === index + 1 && draggedIndex !== index && draggedIndex !== index + 1 && (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="w-full border border-dashed border-blue-200 rounded m-2"></div>
+                  </div>
+                )}
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
       
-      {/* Add slide button */}
-      <div className="p-4 border-t border-gray-200">
+      {/* Add new slide button */}
+      <div className="p-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <button
-          className="w-full flex items-center justify-center py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+          className="w-full flex items-center justify-center px-4 py-2 border border-blue-300 dark:border-gray-600 rounded-lg text-blue-500 dark:text-gray-300 bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors duration-200"
           onClick={addNewSlide}
         >
-          <Plus size={18} className="mr-1" />
+          <Plus size={18} className="mr-2" />
           Add Slide
         </button>
       </div>

@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ImageIcon } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import ImageSelectModal from '../ImageSelectModal';
 
 /**
  * UploadableImage Component
  * 
  * A component that represents an image slot in a slide with options to:
- * - Select an image from the library via a modal
- * - Clear/remove a set image
+ * - Click anywhere on the space to select/change an image
+ * - Drag images to swap positions
+ * - Visual indication on hover with border
  * 
  * @param {Object} props
  * @param {string} [props.initialImage] - URL of initial image to display
@@ -28,6 +29,8 @@ function UploadableImage({
   const [previewUrl, setPreviewUrl] = useState(initialImage || null);
   const [isHovering, setIsHovering] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Reset state if initialImage changes
   useEffect(() => {
@@ -68,6 +71,7 @@ function UploadableImage({
   };
   
   const openImageSelectModal = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsModalOpen(true);
   };
@@ -82,40 +86,84 @@ function UploadableImage({
     }
   };
 
-  // Calculate placeholder background style
-  const placeholderStyle = placeholderColor ? 
-    { backgroundColor: placeholderColor } : 
-    { backgroundColor: '#f3f4f6' }; // Light gray default
+  // Drag and drop handlers
+  const handleDragStart = (e) => {
+    // Store the position data
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      position: position,
+      url: previewUrl
+    }));
+    setIsDragging(true);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'image') {
+        onImageChange({
+          url: data.src,
+          id: data.id,
+          position
+        });
+      }
+    } catch (error) {
+      console.error('Error handling drop:', error);
+    }
+  };
 
   return (
     <>
       <div 
-        className={`relative cursor-default group ${className}`}
+        className={`w-full h-full relative group cursor-pointer ${className} ${
+          isHovering ? 'ring-2 ring-blue-500' : ''
+        } transition-all duration-200`}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
+        onClick={openImageSelectModal}
+        draggable="true"
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        style={{ opacity: isDragging ? 0.5 : 1 }}
       >
         {previewUrl ? (
-          // Image preview
-          <div className="w-full h-full relative">
+          // Image preview with centered content
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
             <img 
               src={previewUrl} 
               alt={alt}
-              className="w-full h-full object-cover"
+              className="h-full w-auto min-w-full object-cover"
+              draggable="false" // Prevent default image drag behavior
             />
             
-            {/* Hover overlay with actions */}
-            <div className={`absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-200 ${isHovering ? 'opacity-100' : 'opacity-0'} flex flex-col justify-between`}>
-              <div className="flex justify-end p-2">
+            {/* Hover overlay */}
+            <div className={`absolute inset-0 bg-black transition-opacity ${isHovering ? 'bg-opacity-40' : 'bg-opacity-0'}`}>
+              <div className="absolute top-2 right-2">
                 <button
                   type="button"
-                  onClick={openImageSelectModal}
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded mr-2 transition-colors"
-                >
-                  Change Image
-                </button>
-                <button
-                  type="button"
-                  onClick={clearImage}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clearImage(e);
+                  }}
                   className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors"
                 >
                   Remove
@@ -124,21 +172,12 @@ function UploadableImage({
             </div>
           </div>
         ) : (
-          // Empty state with select button - improved centering
+          // Empty state placeholder
           <div 
-            className="w-full h-full flex items-center justify-center"
-            style={placeholderStyle}
+            className={`absolute inset-0 ${placeholderColor} dark:bg-gray-800 flex flex-col items-center justify-center ${isDragOver ? 'bg-blue-50 dark:bg-gray-700' : ''}`}
           >
-            <div className="flex flex-col items-center justify-center gap-2 text-center">
-              <ImageIcon size={32} className="text-gray-400 mx-auto" />
-              <button
-                type="button"
-                onClick={openImageSelectModal}
-                className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded transition-colors mx-auto"
-              >
-                Select from Library
-              </button>
-            </div>
+            <Upload className="w-6 h-6 text-gray-400 dark:text-gray-500 mb-2" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">Add Image</span>
           </div>
         )}
       </div>

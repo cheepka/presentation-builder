@@ -12,6 +12,7 @@ const initialState = {
   ],
   currentSlideIndex: 0,
   imageLibrary: [],
+  knowledgeLibrary: [],
 };
 
 // Action types
@@ -23,45 +24,57 @@ export const ACTIONS = {
   SET_CURRENT_SLIDE: 'set_current_slide',
   ADD_IMAGE: 'add_image',
   REMOVE_IMAGE: 'remove_image',
+  ADD_KNOWLEDGE: 'add_knowledge',
+  REMOVE_KNOWLEDGE: 'remove_knowledge',
 };
 
 // Reducer function
 function presentationReducer(state, action) {
   switch (action.type) {
     case ACTIONS.ADD_SLIDE:
+      const newSlide = action.payload;
       return {
         ...state,
-        slides: [...state.slides, action.payload],
-        currentSlideIndex: state.slides.length, // Set the new slide as current
+        slides: [...state.slides, newSlide],
+        currentSlideIndex: state.slides.length,
       };
       
     case ACTIONS.UPDATE_SLIDE:
+      const { index, field, value } = action.payload;
+      
+      // Create a copy of the slides array for immutability
+      const updatedSlides = [...state.slides];
+      
+      // Update the specific field in the slide at the specified index
+      updatedSlides[index] = {
+        ...updatedSlides[index],
+        [field]: value,
+      };
+      
       return {
         ...state,
-        slides: state.slides.map((slide, index) => 
-          index === action.payload.index ? action.payload.slide : slide
-        ),
+        slides: updatedSlides,
       };
       
     case ACTIONS.DELETE_SLIDE:
-      // Handle new current slide index after deletion
-      let newIndex = state.currentSlideIndex;
-      if (state.slides.length > 1) {
-        if (action.payload === state.currentSlideIndex) {
-          // If deleting current slide, move to previous (or next if it's the first slide)
-          newIndex = action.payload === 0 ? 0 : action.payload - 1;
-        } else if (action.payload < state.currentSlideIndex) {
-          // If deleting a slide before the current, adjust the index
-          newIndex = state.currentSlideIndex - 1;
-        }
-      } else {
-        newIndex = 0;
+      // Don't allow deleting if there's only one slide left
+      if (state.slides.length <= 1) {
+        return state;
       }
-
+      
+      const deleteIndex = action.payload;
+      const remainingSlides = state.slides.filter((_, i) => i !== deleteIndex);
+      
+      // Adjust the currentSlideIndex if needed
+      let newCurrentSlideIndex = state.currentSlideIndex;
+      if (deleteIndex <= state.currentSlideIndex) {
+        newCurrentSlideIndex = Math.max(0, state.currentSlideIndex - 1);
+      }
+      
       return {
         ...state,
-        slides: state.slides.filter((_, index) => index !== action.payload),
-        currentSlideIndex: newIndex,
+        slides: remainingSlides,
+        currentSlideIndex: newCurrentSlideIndex,
       };
       
     case ACTIONS.REORDER_SLIDE:
@@ -108,6 +121,18 @@ function presentationReducer(state, action) {
       return {
         ...state,
         imageLibrary: state.imageLibrary.filter(img => img.id !== action.payload),
+      };
+      
+    case ACTIONS.ADD_KNOWLEDGE:
+      return {
+        ...state,
+        knowledgeLibrary: [...state.knowledgeLibrary, action.payload],
+      };
+      
+    case ACTIONS.REMOVE_KNOWLEDGE:
+      return {
+        ...state,
+        knowledgeLibrary: state.knowledgeLibrary.filter(item => item.id !== action.payload),
       };
       
     default:

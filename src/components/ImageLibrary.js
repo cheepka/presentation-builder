@@ -95,14 +95,14 @@ const ImageLibrary = () => {
       <div className="p-2">
         {imageLibrary.length === 0 ? (
           // Empty state
-          <div className="text-center py-6 text-gray-500">
+          <div className="text-center py-6 text-gray-500 dark:text-gray-400">
             <p>No images yet</p>
             <p className="text-sm mb-4">Upload images to use in your slides</p>
             <button
-              className="inline-flex items-center px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors text-sm"
+              className="inline-flex items-center px-4 py-2 border border-blue-300 dark:border-gray-600 rounded-lg text-blue-500 dark:text-gray-300 bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors duration-200"
               onClick={handleUploadClick}
             >
-              <Upload size={16} className="mr-1" />
+              <Upload size={16} className="mr-2" />
               Upload Images
             </button>
           </div>
@@ -113,16 +113,18 @@ const ImageLibrary = () => {
               {imageLibrary.map((image) => (
                 <div 
                   key={image.id}
-                  className="relative group rounded overflow-hidden border border-gray-200 aspect-square"
+                  className="relative group rounded overflow-hidden border border-gray-200 dark:border-gray-700 aspect-square bg-white dark:bg-gray-900"
                 >
                   {/* Image thumbnail */}
-                  <img
-                    src={image.src}
-                    alt={image.name}
-                    className="w-full h-full object-cover cursor-grab"
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, image)}
-                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <img
+                      src={image.src}
+                      alt={image.name}
+                      className="h-full w-auto cursor-grab"
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, image)}
+                    />
+                  </div>
                   
                   {/* Delete button overlay (visible on hover) */}
                   <button
@@ -138,10 +140,10 @@ const ImageLibrary = () => {
             
             {/* Upload button */}
             <button
-              className="w-full flex items-center justify-center px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors text-sm"
+              className="w-full flex items-center justify-center px-4 py-2 border border-blue-300 dark:border-gray-600 rounded-lg text-blue-500 dark:text-gray-300 bg-blue-50 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors duration-200"
               onClick={handleUploadClick}
             >
-              <Upload size={16} className="mr-1" />
+              <Upload size={16} className="mr-2" />
               Upload More Images
             </button>
           </>

@@ -15,15 +15,35 @@ import { getPlaceholderColor } from '../../utils/slideTemplates';
  */
 function FourGridSlide({ slide, onUpdate, onImageChange }) {
   // Handle image changes for a specific grid position
-  const handleGridImageChange = useCallback((position, imageData) => {
+  const handleGridImageChange = useCallback((imageData) => {
     // Make sure we're preserving all other images
     const updatedImageData = imageData ? {
       ...imageData,
-      position // Ensure position is set correctly
+      position: imageData.position // Ensure position is set correctly
     } : null;
     
-    // Call the parent's onImageChange with the correct position
-    onImageChange(updatedImageData);
+    // Handle image swapping if swapData is present
+    if (imageData && imageData.swappedWith && imageData.swapData) {
+      // First notify about the current image change
+      onImageChange(updatedImageData);
+      
+      // Then handle the swap by triggering another change for the original position
+      if (imageData.swapData) {
+        onImageChange({
+          ...imageData.swapData,
+          position: imageData.swappedWith
+        });
+      } else {
+        // If there was no image in the target, clear the source position
+        onImageChange({
+          position: imageData.swappedWith,
+          url: null
+        });
+      }
+    } else {
+      // Regular image change (no swap)
+      onImageChange(updatedImageData);
+    }
   }, [onImageChange]);
   
   return (
@@ -39,7 +59,7 @@ function FourGridSlide({ slide, onUpdate, onImageChange }) {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <UploadableImage
                     initialImage={slide.images?.[gridPosition]?.url}
-                    onImageChange={(imageData) => handleGridImageChange(gridPosition, imageData)}
+                    onImageChange={(imageData) => handleGridImageChange(imageData)}
                     position={gridPosition}
                     className="w-full h-full"
                     alt={`${labels[num-1]} image`}

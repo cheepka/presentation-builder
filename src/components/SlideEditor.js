@@ -21,6 +21,17 @@ import SplitVerticalSlide from './slideTypes/SplitVerticalSlide';
 const SlideEditor = () => {
   const { state, dispatch } = usePresentation();
   const { slides, currentSlideIndex } = state;
+  const slideRefs = React.useRef({});
+  
+  // Scroll to current slide when it changes
+  React.useEffect(() => {
+    if (slideRefs.current[currentSlideIndex]) {
+      slideRefs.current[currentSlideIndex].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  }, [currentSlideIndex]);
   
   // If there are no slides, display empty state
   if (slides.length === 0) {
@@ -137,7 +148,11 @@ const SlideEditor = () => {
   return (
     <div className="w-full h-full overflow-y-auto p-8 flex flex-col items-center">
       {slides.map((slide, index) => (
-        <div key={slide.id} className="mb-16">
+        <div 
+          key={slide.id} 
+          className="mb-16"
+          ref={el => slideRefs.current[index] = el}
+        >
           <div className="text-gray-600 text-sm mb-2 ml-2">
             Slide {index + 1}
           </div>

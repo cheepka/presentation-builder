@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { PresentationProvider } from './context/PresentationContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Header from './components/Header';
 import MainLayout from './components/layout/MainLayout';
 import SlideNavigator from './components/SlideNavigator';
@@ -11,16 +12,18 @@ import RightPanel from './components/RightPanel';
 
 function App() {
   return (
-    <PresentationProvider>
-      <div className="flex flex-col h-screen">
-        <Header />
-        <MainLayout 
-          leftPanel={<SlideNavigator />}
-          centerPanel={<SlideEditor />}
-          rightPanel={<RightPanel />}
-        />
-      </div>
-    </PresentationProvider>
+    <ThemeProvider>
+      <PresentationProvider>
+        <div className="flex flex-col h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+          <Header />
+          <MainLayout 
+            leftPanel={<SlideNavigator />}
+            centerPanel={<SlideEditor />}
+            rightPanel={<RightPanel />}
+          />
+        </div>
+      </PresentationProvider>
+    </ThemeProvider>
   );
 }
 
